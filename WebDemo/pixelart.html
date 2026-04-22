@@ -511,21 +511,27 @@
         </button>
       </div>
 
-      <div class="ai-panel" style="width: 100%; max-width: 600px; margin-top: 30px;">
-        <div class="panel-title">Biblioteca de Objetos</div>
+      <!-- Panel de Biblioteca (Minimizable para ganar espacio) -->
+      <div class="ai-panel" id="collapsibleLibrary" style="width: 100%; max-width: 600px; margin-top: 30px;">
+        <div class="panel-title" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleLibrary()">
+          <span>Biblioteca de Objetos</span>
+          <span id="libToggleIcon">▼</span>
+        </div>
         
-        <div class="bank-tabs">
-          <div class="tab active" id="tab-official" onclick="switchBank('official')">Oficial</div>
-          <div class="tab" id="tab-user" onclick="switchBank('user')">Mis Creaciones</div>
-        </div>
+        <div id="libraryContent">
+          <div class="bank-tabs">
+            <div class="tab active" id="tab-official" onclick="switchBank('official')">Oficial</div>
+            <div class="tab" id="tab-user" onclick="switchBank('user')">Mis Creaciones</div>
+          </div>
 
-        <div class="ai-input-group" id="ai-controls" style="margin-bottom: 10px;">
-          <input type="text" id="aiPrompt" placeholder="Ej: lobo, arbol, gaucho, planta...">
-          <button class="btn btn-small" onclick="generateWithAI()">IA</button>
-        </div>
+          <div class="ai-input-group" id="ai-controls" style="margin-bottom: 10px;">
+            <input type="text" id="aiPrompt" placeholder="Ej: lobo, arbol, gaucho, planta...">
+            <button class="btn btn-small" onclick="generateWithAI()">IA</button>
+          </div>
 
-        <div class="object-bank" id="objectBank">
-          <!-- Se llena vía JS -->
+          <div class="object-bank" id="objectBank">
+            <!-- Se llena dinámicamente vía JS -->
+          </div>
         </div>
       </div>
     </main>
@@ -588,7 +594,7 @@
     </div>
   </div>
 
-  <script>
+    // Inicialización de variables globales
     const canvas = document.getElementById('pixelCanvas');
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     const overlayCanvas = document.getElementById('overlayCanvas');
@@ -596,6 +602,7 @@
     const preview = document.getElementById('previewCanvas');
     const pCtx = preview.getContext('2d');
     
+    // Paleta de colores oficial de Horizonte
     const gameColors = [
       '#d4a574', '#8B4513', '#f0e5d8', '#2c3e50',
       '#8B0000', '#c0392b', '#1a1a2e', '#5D4037',
@@ -1050,6 +1057,7 @@
       initUserPalette();
     }
 
+    // Función para exportar el trabajo a formato JSON técnico
     function exportCode() {
       const data = [], mask = [];
       for (let y = 0; y < canvas.height; y++) {
@@ -1061,8 +1069,22 @@
         }
         data.push(row); mask.push(mRow);
       }
+      
+      const fileName = (currentlyEditing || 'nuevo_asset').toLowerCase().replace(/\s+/g, '_');
       const blob = new Blob([JSON.stringify({ w: canvas.width, h: canvas.height, data, mask })], { type: 'application/json' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'asset.json'; a.click();
+      const a = document.createElement('a'); 
+      a.href = URL.createObjectURL(blob); 
+      a.download = fileName + '.json'; 
+      a.click();
+    }
+
+    // Alternar visibilidad de la biblioteca para ganar espacio
+    function toggleLibrary() {
+      const content = document.getElementById('libraryContent');
+      const icon = document.getElementById('libToggleIcon');
+      const isHidden = content.style.display === 'none';
+      content.style.display = isHidden ? 'block' : 'none';
+      icon.textContent = isHidden ? '▼' : '▲';
     }
 
     function importLibraryJSON(input) {
