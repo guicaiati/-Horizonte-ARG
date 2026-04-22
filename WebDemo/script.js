@@ -27,6 +27,55 @@ let pPressed = false;
 const controlsCanvas = document.getElementById('controlsCanvas');
 const controlsCtx = controlsCanvas ? controlsCanvas.getContext('2d') : null;
 
+// Cargar assets personalizados del usuario desde LocalStorage
+function getUserAsset(name) {
+  try {
+    const library = JSON.parse(localStorage.getItem('horizonte_user_library') || '{}');
+    const asset = library[name];
+    if (asset && !asset.split) {
+      // Auto-separar espada del cuerpo
+      asset.split = splitMartinSprite(asset);
+    }
+    return asset || null;
+  } catch (e) { return null; }
+}
+
+function splitMartinSprite(asset) {
+  const body = asset.data.map(row => [...row]);
+  const sword = asset.data.map(row => row.map(() => null));
+  const isMetal = (c) => {
+    if (!c) return false;
+    const hex = c.toLowerCase();
+    // Grises típicos de espada
+    return hex === '#bdc3c7' || hex === '#7f8c8d' || hex === '#95a5a6' || hex === '#ecf0f1' || hex === '#bdc3c8' || hex === '#999999';
+  };
+  asset.data.forEach((row, y) => {
+    row.forEach((color, x) => {
+      // Si es metal y está a la derecha, es espada
+      if (isMetal(color) && x > asset.w * 0.45) {
+        sword[y][x] = color;
+        body[y][x] = null;
+      }
+    });
+  });
+  return { body, sword };
+}
+
+function drawPixelSprite(ctx, data, x, y, scale = 1, w, h) {
+  if (!data) return false;
+  const startX = x - (w * scale) / 2;
+  const startY = y - (h * scale);
+  data.forEach((row, py) => {
+    row.forEach((color, px) => {
+      if (color) {
+        ctx.fillStyle = color;
+        ctx.fillRect(startX + px * scale, startY + py * scale, scale, scale);
+      }
+    });
+  });
+  return true;
+}
+
 function drawControlsPanel() {
   if (!controlsCtx) return;
   const ctx = controlsCtx;
@@ -684,17 +733,17 @@ function draw() {
       ctx.fillRect(d.x + 20, d.y - 20, d.width - 40, d.height + 40);
     } else if (d.type === 'tallGrass') {
       ctx.fillStyle = '#5A7156'; // Verde desaturado oscuro
-      
+
       const distToPlayer = distance(player, d);
       let speedFactor = 1000;
       let amplitudeFactor = 1.5;
-      
+
       // Si el jugador está cerca, se mueven brusco
       if (distToPlayer < 40) {
         speedFactor = 150;
         amplitudeFactor = 5;
       }
-      
+
       const sway = Math.sin(Date.now() / speedFactor + d.x) * amplitudeFactor;
       for (let g = 0; g < 4; g++) {
         const height = 15 + (g % 3) * 5;
@@ -880,68 +929,62 @@ function draw() {
   });
 
   // Jugador (Gaucho Pixel Art)
+  // Sincronización de ataque y capas de usuario
   const px = player.x;
   const py = player.y;
-
-  // Sombra pixelada bajo los pies
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-  ctx.fillRect(px - 14, py + 22, 8, 4);
-  ctx.fillRect(px - 6, py + 24, 12, 4);
-  ctx.fillRect(px + 4, py + 22, 8, 4);
-
-  // Sombrero (Marrón oscuro)
-  ctx.fillStyle = '#3d3d3d';
-  ctx.fillRect(px - 10, py - 20, 20, 4); // Copa
-  ctx.fillRect(px - 14, py - 16, 28, 4); // Ala ancha
-
-  // Cabeza y barba
-  ctx.fillStyle = '#d4a574'; // Piel
-  ctx.fillRect(px - 6, py - 12, 12, 8); // Cara
-  ctx.fillStyle = '#1a0f0a'; // Barba
-  ctx.fillRect(px - 6, py - 4, 12, 4);
-
-  // Torso y Poncho (Rojo/bordo)
-  ctx.fillStyle = '#8B0000';
-  ctx.fillRect(px - 10, py, 20, 16);
-  // Detalles poncho
-  ctx.fillStyle = '#c0392b';
-  ctx.fillRect(px - 6, py, 12, 16);
-
-  const legOffset = player.isMoving ? Math.sin(Date.now() / 100) * 3 : 0;
-
-  // Piernas (Bombachas de campo oscuras)
-  ctx.fillStyle = '#2c3e50';
-  ctx.fillRect(px - 8, py + 16 - legOffset, 6, 8); // Pierna izq
-  ctx.fillRect(px + 2, py + 16 + legOffset, 6, 8); // Pierna der
-
-  // Botas
-  ctx.fillStyle = '#1a0f0a';
-  ctx.fillRect(px - 8, py + 24 - legOffset, 6, 4);
-  ctx.fillRect(px + 2, py + 24 + legOffset, 6, 4);
-
-  // Brazo y Facón (Arma) con animación de ataque
-  ctx.save();
-  const armOffset = player.isMoving ? Math.sin(Date.now() / 100 + Math.PI) * 2 : 0;
-  ctx.translate(0, armOffset);
-
   const timeSinceAttack = Date.now() - player.attackCooldown;
-  if (timeSinceAttack < 200) {
-    // Animación de espadazo (swing de 135 grados)
-    ctx.translate(px + 12, py + 6);
-    const progress = timeSinceAttack / 200;
-    const angle = -Math.PI / 4 + (Math.PI * 0.75 * progress);
-    ctx.rotate(angle);
-    ctx.translate(-(px + 12), -(py + 6));
+  const isAttacking = timeSinceAttack < 200;
+  const attackProgress = isAttacking ? timeSinceAttack / 200 : 0;
+  const isMoving = player.isMoving;
+  const bobbing = isMoving ? Math.abs(Math.cos(Date.now() / 110)) * 5 : 0;
+
+  const userMartin = getUserAsset('Martin V2.0') || getUserAsset('Martin');
+  let drawnCustom = false;
+
+  if (userMartin && userMartin.split) {
+    // Sombra
+    ctx.save();
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+    ctx.beginPath(); ctx.ellipse(px, py + 12, 16, 5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+
+    // DIBUJAR CUERPO (Fijo)
+    ctx.save();
+    ctx.translate(px, py - bobbing);
+    drawPixelSprite(ctx, userMartin.split.body, 0, 8, 1, userMartin.w, userMartin.h);
+    ctx.restore();
+
+    // DIBUJAR ESPADA (Independiente y Animada)
+    ctx.save();
+    ctx.translate(px + 6, py - 4 - bobbing); // Pivote en la mano
+    if (isAttacking) {
+      const swordSwing = -Math.PI/4 + (Math.PI * 0.8 * attackProgress);
+      ctx.rotate(swordSwing);
+      // Estela
+      ctx.beginPath(); ctx.arc(12, 0, 30, -Math.PI/3, Math.PI/3);
+      ctx.strokeStyle = `rgba(255, 255, 255, ${0.6 * (1 - attackProgress)})`;
+      ctx.lineWidth = 2; ctx.stroke();
+    }
+    drawPixelSprite(ctx, userMartin.split.sword, -6, 12, 1, userMartin.w, userMartin.h);
+    ctx.restore();
+    drawnCustom = true;
   }
 
-  ctx.fillStyle = '#d4a574'; // Mano
-  ctx.fillRect(px + 10, py + 4, 4, 4);
-  ctx.fillStyle = '#bdc3c7'; // Hoja del facón
-  ctx.fillRect(px + 14, py - 4, 2, 10);
-  ctx.fillStyle = '#7f8c8d'; // Mango
-  ctx.fillRect(px + 13, py + 6, 4, 4);
-
-  ctx.restore();
+  if (!drawnCustom) {
+    // Fallback: Personaje Original
+    ctx.save();
+    ctx.translate(px, py);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.25)'; ctx.fillRect(-14, 22, 8, 4); ctx.fillRect(-6, 24, 12, 4); ctx.fillRect(4, 22, 8, 4);
+    ctx.fillStyle = '#3d3d3d'; ctx.fillRect(-10, -20, 20, 4); ctx.fillRect(-14, -16, 28, 4);
+    ctx.fillStyle = '#d4a574'; ctx.fillRect(-6, -12, 12, 8);
+    ctx.fillStyle = '#1a0f0a'; ctx.fillRect(-6, -4, 12, 4);
+    ctx.fillStyle = '#8B0000'; ctx.fillRect(-10, 0, 20, 16);
+    ctx.fillStyle = '#c0392b'; ctx.fillRect(-6, 0, 12, 16);
+    const legStep = isMoving ? Math.sin(Date.now() / 100) * 3 : 0;
+    ctx.fillStyle = '#2c3e50'; ctx.fillRect(-8, 16 - legStep, 6, 8); ctx.fillRect(2, 16 + legStep, 6, 8);
+    ctx.fillStyle = '#1a0f0a'; ctx.fillRect(-8, 24 - legStep, 6, 4); ctx.fillRect(2, 24 + legStep, 6, 4);
+    ctx.restore();
+  }
 
   if (player.knockback.time > 0) {
     ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
