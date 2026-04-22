@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Pixel Art Generator - Horizonte</title>
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
       background: #120b08;
@@ -27,6 +31,7 @@
       align-items: center;
       flex-shrink: 0;
     }
+
     .app-header h1 {
       color: #d4a574;
       margin: 0;
@@ -34,6 +39,7 @@
       font-weight: 800;
       letter-spacing: 1px;
     }
+
     .app-header p {
       margin: 0;
       font-size: 10px;
@@ -93,6 +99,7 @@
       overflow: hidden;
       margin-bottom: 5px;
     }
+
     .panel-header {
       background: #251610;
       padding: 8px 12px;
@@ -105,11 +112,27 @@
       color: #d4a574;
       border-bottom: 1px solid #3d2b1f;
     }
-    .panel-header:hover { background: #2d1b14; }
-    .panel-content { padding: 10px; }
-    .panel-content.hidden { display: none; }
-    .toggle-icon { font-size: 10px; transition: transform 0.2s; }
-    .toggle-icon.collapsed { transform: rotate(-90deg); }
+
+    .panel-header:hover {
+      background: #2d1b14;
+    }
+
+    .panel-content {
+      padding: 10px;
+    }
+
+    .panel-content.hidden {
+      display: none;
+    }
+
+    .toggle-icon {
+      font-size: 10px;
+      transition: transform 0.2s;
+    }
+
+    .toggle-icon.collapsed {
+      transform: rotate(-90deg);
+    }
 
     /* Canvas Area */
     .canvas-viewport {
@@ -128,8 +151,8 @@
       content: '';
       margin: auto;
     }
-    
-    .canvas-viewport > * {
+
+    .canvas-viewport>* {
       margin-left: auto;
       margin-right: auto;
       flex-shrink: 0;
@@ -137,9 +160,9 @@
 
     .drawing-container {
       position: relative;
-      box-shadow: 0 0 40px rgba(0,0,0,0.5);
-      background-image: 
-        linear-gradient(45deg, #ccc 25%, transparent 25%), 
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+      background-image:
+        linear-gradient(45deg, #ccc 25%, transparent 25%),
         linear-gradient(-45deg, #ccc 25%, transparent 25%),
         linear-gradient(45deg, transparent 75%, #ccc 75%),
         linear-gradient(-45deg, transparent 75%, #ccc 75%);
@@ -169,11 +192,31 @@
       border-radius: 3px;
       transition: all 0.2s;
     }
-    .btn:hover { background: #f0e5d8; transform: translateY(-1px); }
-    .btn:active { transform: translateY(0); }
-    .btn-small { padding: 4px 8px; font-size: 10px; }
-    .btn-dark { background: #3d2b1f; color: #d4a574; border: 1px solid #5d4e37; }
-    .btn-dark:hover { background: #5d4e37; color: #f0e5d8; }
+
+    .btn:hover {
+      background: #f0e5d8;
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-small {
+      padding: 4px 8px;
+      font-size: 10px;
+    }
+
+    .btn-dark {
+      background: #3d2b1f;
+      color: #d4a574;
+      border: 1px solid #5d4e37;
+    }
+
+    .btn-dark:hover {
+      background: #5d4e37;
+      color: #f0e5d8;
+    }
 
     .tool-btn {
       width: 34px;
@@ -189,24 +232,35 @@
       transition: all 0.2s;
       padding: 0;
     }
+
     .tool-btn svg {
       width: 20px;
       height: 20px;
       shape-rendering: crispEdges;
     }
-    .tool-btn:hover { background: #251610; color: #d4a574; }
-    .tool-btn.active {
-      background: #d4a574;
-      color: #1a0f0a;
-      box-shadow: 0 0 10px rgba(212, 165, 116, 0.3);
+
+    .tool-btn:hover {
+      background: #251610;
+      color: #d4a574;
     }
-    .tool-btn.active svg { color: #1a0f0a; }
+
+    .tool-btn.active {
+      background: #0075ff;
+      color: #f0e5d8;
+      box-shadow: 0 0 10px rgba(0, 117, 255, 0.4);
+      border-color: #005bb5;
+    }
+
+    .tool-btn.active svg {
+      color: #f0e5d8;
+    }
 
     .option-group {
       display: flex;
       align-items: center;
       gap: 8px;
     }
+
     .option-group label {
       font-size: 10px;
       color: #b08870;
@@ -214,7 +268,8 @@
       font-weight: 700;
     }
 
-    input[type="number"], input[type="text"] {
+    input[type="number"],
+    input[type="text"] {
       background: #0d0806;
       color: #f0e5d8;
       border: 1px solid #3d2b1f;
@@ -223,13 +278,18 @@
       font-size: 11px;
       border-radius: 2px;
     }
-    input[type="number"]:focus { border-color: #d4a574; outline: none; }
+
+    input[type="number"]:focus {
+      border-color: #d4a574;
+      outline: none;
+    }
 
     .color-grid {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
       gap: 4px;
     }
+
     .color-btn {
       width: 32px;
       height: 32px;
@@ -238,8 +298,17 @@
       border-radius: 2px;
       transition: transform 0.1s;
     }
-    .color-btn:hover { transform: scale(1.1); z-index: 2; border-color: #f0e5d8; }
-    .color-btn.active { border: 2px solid #fff; box-shadow: 0 0 0 1px #1a0f0a; }
+
+    .color-btn:hover {
+      transform: scale(1.1);
+      z-index: 2;
+      border-color: #f0e5d8;
+    }
+
+    .color-btn.active {
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 1px #1a0f0a;
+    }
 
     .panel-title {
       font-size: 10px;
@@ -264,25 +333,95 @@
       gap: 10px;
       width: 100%;
     }
+
     .sampling-refs {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 5px;
-      font-size: 9px;
-      color: #885544;
-      background: #120b08;
-      padding: 5px;
-      border-radius: 4px;
-    }
-    .sampling-refs input {
-      width: 100%;
-      background: #1a0f0a;
-      border: 1px solid #3d2b1f;
-      color: #d4a574;
       font-size: 10px;
-      padding: 2px;
-      text-align: center;
+      color: #d4a574;
+      background: #120b08;
+      border: 1px solid #3d2b1f;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 10px;
     }
+
+    .pixel-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+      margin: 6px 0;
+    }
+
+    .pixel-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 12px;
+      width: 8px;
+      background: #0075ff;
+      cursor: pointer;
+      border: 1px solid #1a0f0a;
+      box-shadow: -1px 0 0 #66b3ff, 1px 0 0 #004099;
+      margin-top: -4px;
+    }
+
+    .pixel-slider::-moz-range-thumb {
+      height: 12px;
+      width: 8px;
+      background: #0075ff;
+      cursor: pointer;
+      border: 1px solid #1a0f0a;
+      box-shadow: -1px 0 0 #66b3ff, 1px 0 0 #004099;
+      border-radius: 0;
+    }
+
+    .pixel-slider::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 6px;
+      cursor: pointer;
+      background: #050302;
+      border: 1px solid #553a29;
+      border-top-color: #1a0f0a;
+      border-left-color: #1a0f0a;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8);
+    }
+
+    .pixel-slider::-moz-range-track {
+      width: 100%;
+      height: 6px;
+      cursor: pointer;
+      background: #050302;
+      border: 1px solid #553a29;
+      border-top-color: #1a0f0a;
+      border-left-color: #1a0f0a;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8);
+    }
+
+    .pixel-slider:focus {
+      outline: none;
+    }
+
+    .pixel-num::-webkit-outer-spin-button,
+    .pixel-num::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .pixel-num {
+      -moz-appearance: textfield;
+      background: transparent !important;
+      border: none !important;
+      border-bottom: 1px dashed #553a29 !important;
+      color: #f0e5d8 !important;
+      padding: 0 2px !important;
+      text-align: center;
+      width: 25px !important;
+      font-size: 11px !important;
+      border-radius: 0 !important;
+    }
+
+    .pixel-num:focus {
+      border-bottom: 1px solid #d4a574 !important;
+      outline: none;
+    }
+
     #gamePreviewCanvas {
       background: #C4A47C;
       border: 1px solid #3d2b1f;
@@ -302,10 +441,12 @@
       flex-direction: column;
       gap: 10px;
     }
+
     .ai-input-group {
       display: flex;
       gap: 5px;
     }
+
     .ai-input-group input {
       flex: 1;
       background: #120b08;
@@ -315,6 +456,7 @@
       border-radius: 4px;
       font-size: 12px;
     }
+
     /* Tabs & Bank */
     .bank-tabs {
       display: flex;
@@ -324,6 +466,7 @@
       padding: 2px;
       border-radius: 4px;
     }
+
     .tab {
       flex: 1;
       padding: 6px;
@@ -338,11 +481,17 @@
       transition: all 0.2s;
       border: 1px solid transparent;
     }
-    .tab:hover { color: #d4a574; border-color: #3d2b1f; }
+
+    .tab:hover {
+      color: #d4a574;
+      border-color: #3d2b1f;
+    }
+
     .tab.active {
       background: #3d2b1f;
       color: #d4a574;
     }
+
     .object-bank {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -351,6 +500,7 @@
       overflow-y: auto;
       padding-right: 5px;
     }
+
     .bank-item {
       background: #120b08;
       border: 1px solid #3d2b1f;
@@ -364,11 +514,13 @@
       position: relative;
       min-height: 40px;
     }
+
     .bank-item:hover {
       background: #251610;
       border-color: #d4a574;
       transform: translateY(-2px);
     }
+
     .bank-item span {
       font-size: 8px;
       color: #b08870;
@@ -380,7 +532,10 @@
       width: 100%;
       text-align: center;
     }
-    .bank-item:hover span { color: #d4a574; }
+
+    .bank-item:hover span {
+      color: #d4a574;
+    }
 
     /* Preview Canvas Area */
     .preview-container {
@@ -389,22 +544,39 @@
       gap: 10px;
       align-items: center;
     }
+
     #previewCanvas {
       background: #111;
       border: 1px solid #3d2b1f;
     }
 
     /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #1a0f0a; }
-    ::-webkit-scrollbar-thumb { background: #3d2b1f; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #d4a574; }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #1a0f0a;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #3d2b1f;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #d4a574;
+    }
 
     /* Modal Overlay for Crop */
     #cropModal {
       position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85);
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
       z-index: 1000;
       display: none;
       flex-direction: column;
@@ -412,6 +584,7 @@
       justify-content: center;
       padding: 20px;
     }
+
     .modal-content {
       background: #1a0f0a;
       border: 1px solid #d4a574;
@@ -423,6 +596,7 @@
       flex-direction: column;
       gap: 15px;
     }
+
     #cropCanvas {
       max-width: 100%;
       max-height: 70vh;
@@ -432,8 +606,11 @@
     /* Modal Biblioteca */
     #libraryModal {
       position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85);
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
       z-index: 1000;
       display: none;
       flex-direction: column;
@@ -441,6 +618,7 @@
       justify-content: center;
       padding: 20px;
     }
+
     #libraryModal .modal-content {
       width: 90vw;
       max-width: 800px;
@@ -450,15 +628,18 @@
       flex-direction: column;
       box-sizing: border-box;
     }
+
     .modal-object-bank {
       grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
       max-height: none !important;
       flex: 1;
       overflow-y: auto;
     }
+
     .modal-object-bank .bank-item {
       min-height: 120px !important;
     }
+
     .modal-object-bank .bank-item-preview {
       max-width: 100%;
       max-height: 80px;
@@ -468,14 +649,24 @@
 
     /* ===================== ACCESIBILIDAD WCAG AA/AAA ===================== */
     .skip-link {
-      position: absolute; top: -44px; left: 8px;
-      background: #d4a574; color: #1a0f0a;
-      padding: 8px 16px; font-weight: 800; font-size: 13px;
-      z-index: 10000; border-radius: 0 0 6px 6px;
-      transition: top 0.15s; text-decoration: none;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      position: absolute;
+      top: -44px;
+      left: 8px;
+      background: #d4a574;
+      color: #1a0f0a;
+      padding: 8px 16px;
+      font-weight: 800;
+      font-size: 13px;
+      z-index: 10000;
+      border-radius: 0 0 6px 6px;
+      transition: top 0.15s;
+      text-decoration: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
     }
-    .skip-link:focus { top: 0; }
+
+    .skip-link:focus {
+      top: 0;
+    }
 
     :focus-visible {
       outline: 2.5px solid #d4a574 !important;
@@ -484,13 +675,24 @@
     }
 
     @media (forced-colors: active) {
-      .tool-btn.active { outline: 3px solid ButtonText; }
-      .color-btn { border: 2px solid ButtonText; }
-      .btn { border: 2px solid ButtonText; }
+      .tool-btn.active {
+        outline: 3px solid ButtonText;
+      }
+
+      .color-btn {
+        border: 2px solid ButtonText;
+      }
+
+      .btn {
+        border: 2px solid ButtonText;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
+
+      *,
+      *::before,
+      *::after {
         animation-duration: 0.01ms !important;
         transition-duration: 0.01ms !important;
       }
@@ -498,74 +700,134 @@
 
     /* ===================== LIBRARY UX ===================== */
     .library-search {
-      display: flex; gap: 6px; margin-bottom: 8px; align-items: center;
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+      align-items: center;
     }
+
     .library-search input {
-      flex: 1; width: auto;
-      background: #0d0806; border: 1px solid #3d2b1f;
-      color: #f0e5d8; padding: 5px 8px;
-      font-size: 11px; border-radius: 3px;
+      flex: 1;
+      width: auto;
+      background: #0d0806;
+      border: 1px solid #3d2b1f;
+      color: #f0e5d8;
+      padding: 5px 8px;
+      font-size: 11px;
+      border-radius: 3px;
       font-family: inherit;
     }
-    .library-search input::placeholder { color: #7a6a5a; }
-    .library-search input:focus { border-color: #d4a574; outline: none; }
 
-    .bank-count {
-      font-size: 9px; color: #d4a574;
-      background: rgba(212,165,116,0.15);
-      padding: 2px 6px; border-radius: 10px;
-      font-weight: 800; white-space: nowrap;
-      min-width: 20px; text-align: center;
+    .library-search input::placeholder {
+      color: #7a6a5a;
     }
 
-    .object-bank { grid-template-columns: repeat(2, 1fr) !important; }
+    .library-search input:focus {
+      border-color: #d4a574;
+      outline: none;
+    }
+
+    .bank-count {
+      font-size: 9px;
+      color: #d4a574;
+      background: rgba(212, 165, 116, 0.15);
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: 800;
+      white-space: nowrap;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .object-bank {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
 
     .bank-item {
       min-height: 90px !important;
-      gap: 5px; position: relative; overflow: hidden;
+      gap: 5px;
+      position: relative;
+      overflow: hidden;
     }
-    .bank-item:focus { outline: 2px solid #d4a574; outline-offset: -2px; }
+
+    .bank-item:focus {
+      outline: 2px solid #d4a574;
+      outline-offset: -2px;
+    }
 
     .bank-item-preview {
-      width: 100%; height: 56px;
+      width: 100%;
+      height: 56px;
       image-rendering: pixelated;
-      display: block; border-radius: 2px;
+      display: block;
+      border-radius: 2px;
       background: #0a0604;
     }
 
     .bank-item-overlay {
-      position: absolute; inset: 0;
-      background: rgba(212,165,116,0.12);
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; transition: opacity 0.15s;
-      color: #d4a574; font-size: 9px; font-weight: 800;
-      pointer-events: none; letter-spacing: 1px;
+      position: absolute;
+      inset: 0;
+      background: rgba(212, 165, 116, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.15s;
+      color: #d4a574;
+      font-size: 9px;
+      font-weight: 800;
+      pointer-events: none;
+      letter-spacing: 1px;
       text-transform: uppercase;
     }
+
     .bank-item:hover .bank-item-overlay,
-    .bank-item:focus .bank-item-overlay { opacity: 1; }
+    .bank-item:focus .bank-item-overlay {
+      opacity: 1;
+    }
 
     .bank-item-empty {
-      color: #7a6a5a; font-size: 11px;
-      text-align: center; padding: 20px 10px;
-      font-style: italic; grid-column: 1 / -1;
+      color: #7a6a5a;
+      font-size: 11px;
+      text-align: center;
+      padding: 20px 10px;
+      font-style: italic;
+      grid-column: 1 / -1;
     }
 
     .bank-item-delete {
-      position: absolute; top: 3px; right: 3px;
-      width: 16px; height: 16px;
-      background: rgba(231,76,60,0.8); color: white;
-      border: none; border-radius: 50%;
-      font-size: 11px; line-height: 1; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; transition: opacity 0.15s;
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      width: 16px;
+      height: 16px;
+      background: rgba(231, 76, 60, 0.8);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 11px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.15s;
       z-index: 2;
     }
+
     .bank-item:hover .bank-item-delete,
-    .bank-item:focus .bank-item-delete { opacity: 1; }
-    .bank-item-delete:hover { background: #e74c3c; opacity: 1 !important; }
+    .bank-item:focus .bank-item-delete {
+      opacity: 1;
+    }
+
+    .bank-item-delete:hover {
+      background: #e74c3c;
+      opacity: 1 !important;
+    }
   </style>
 </head>
+
 <body>
   <a href="#pixelCanvas" class="skip-link">Saltar al área de dibujo</a>
   <header class="app-header">
@@ -575,14 +837,25 @@
     </div>
     <div class="option-group">
       <button class="btn btn-dark btn-small" onclick="undo()" title="Ctrl+Z">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M4 12l6-6v4h10v4h-10v4l-6-6z"/></svg>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path d="M4 12l6-6v4h10v4h-10v4l-6-6z" />
+        </svg>
       </button>
       <button class="btn btn-dark btn-small" onclick="redo()" title="Ctrl+Y">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20 12l-6-6v4h-10v4h10v4l6-6z"/></svg>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path d="M20 12l-6-6v4h-10v4h10v4l6-6z" />
+        </svg>
       </button>
-      <button class="btn btn-small" id="btn-save-user" onclick="saveToUserLibrary()" style="background: #27ae60; color: white;" title="Guardar en mi biblioteca">💾 Guardar</button>
-      <div id="statusMsg" style="color:#f1c40f; font-size:10px; margin-left:10px;"
-           role="status" aria-live="polite" aria-atomic="true"></div>
+      <button class="btn btn-small" id="btn-save-user" onclick="saveToUserLibrary()"
+        style="background: #27ae60; color: white;" title="Guardar en mi biblioteca">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"
+          style="vertical-align:middle; margin-right:4px;">
+          <path
+            d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" />
+        </svg>Guardar
+      </button>
+      <div id="statusMsg" style="color:#f1c40f; font-size:10px; margin-left:10px;" role="status" aria-live="polite"
+        aria-atomic="true"></div>
     </div>
   </header>
 
@@ -590,7 +863,10 @@
     <div class="option-group">
       <label>Tamaño:</label>
       <input type="number" id="gridWidth" value="32" min="8" max="128">
-      <span style="color:#555;"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></span>
+      <span style="color:#555;"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
+          <path
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg></span>
       <input type="number" id="gridHeight" value="32" min="8" max="128">
       <button class="btn btn-dark btn-small" onclick="resizeCanvas()">Resize</button>
     </div>
@@ -599,15 +875,18 @@
 
     <div class="option-group">
       <label>Zoom:</label>
-      <input type="range" id="zoomRange" min="1" max="40" value="10" oninput="updateZoom(this.value)" style="width: 80px;">
+      <input type="range" id="zoomRange" class="pixel-slider" min="1" max="40" value="10"
+        oninput="updateZoom(this.value)" style="width: 80px; margin: 0;">
       <span id="zoomVal" style="font-size:10px; min-width:25px; color:#aaa;">10x</span>
     </div>
 
     <div style="width: 1px; height: 16px; background: #3d2b1f;"></div>
 
-    <div class="option-group" id="layerOptions" style="display: none; border-left: 1px solid #3d2b1f; padding-left: 15px;">
+    <div class="option-group" id="layerOptions"
+      style="display: none; border-left: 1px solid #3d2b1f; padding-left: 15px;">
       <label>Capa Animación:</label>
-      <select id="animLayerSelect" style="background: #1a0f0a; color: #f0e5d8; border: 1px solid #3d2b1f; padding: 3px; font-size: 11px;">
+      <select id="animLayerSelect"
+        style="background: #1a0f0a; color: #f0e5d8; border: 1px solid #3d2b1f; padding: 3px; font-size: 11px;">
         <option value="1">1 - Espada (Azul)</option>
         <option value="2">2 - Brazo (Verde)</option>
         <option value="3">3 - Cabeza (Rojo)</option>
@@ -622,10 +901,14 @@
     <div class="option-group">
       <button class="btn btn-small" onclick="clearCanvas()">Limpiar</button>
       <button class="btn btn-small" onclick="exportCode()">Exportar JSON</button>
-      <button class="btn btn-small" onclick="document.getElementById('jsonInput').click()" title="Importar asset JSON a tu biblioteca">Importar JSON</button>
+      <button class="btn btn-small" onclick="document.getElementById('jsonInput').click()"
+        title="Importar asset JSON a tu biblioteca">Importar JSON</button>
       <input type="file" id="jsonInput" accept=".json" style="display:none" onchange="importLibraryJSON(this)">
       <label class="btn btn-small" for="imgInput" style="cursor:pointer; display:inline-block; margin:0;">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:middle; margin-right:4px;"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2h-14v-2z"/></svg>Subir
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"
+          style="vertical-align:middle; margin-right:4px;">
+          <path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2h-14v-2z" />
+        </svg>Subir
       </label>
       <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="loadImage(this)">
     </div>
@@ -634,100 +917,175 @@
 
   <div class="main-workspace">
     <aside class="left-toolbar" role="toolbar" aria-label="Herramientas de dibujo">
-      <button class="tool-btn active" onclick="setTool('pencil')" id="btn-pencil" title="Lápiz (P)" aria-label="Lápiz" aria-pressed="true">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+      <button class="tool-btn active" onclick="setTool('pencil')" id="btn-pencil" title="Lápiz (P)" aria-label="Lápiz"
+        aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+        </svg>
       </button>
-      <button class="tool-btn" onclick="setTool('eraser')" id="btn-eraser" title="Borrador (E)" aria-label="Borrador" aria-pressed="false">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.24 3.56L21.19 8.51c.78.78.78 2.05 0 2.83L11.54 21H3v-8.54l9.41-9.41c.78-.78 2.05-.78 2.83 0zM5 19h5.13l7.19-7.19-2.83-2.83L5 16.17V19z"/></svg>
+      <button class="tool-btn" onclick="setTool('eraser')" id="btn-eraser" title="Borrador (E)" aria-label="Borrador"
+        aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M16.24 3.56L21.19 8.51c.78.78.78 2.05 0 2.83L11.54 21H3v-8.54l9.41-9.41c.78-.78 2.05-.78 2.83 0zM5 19h5.13l7.19-7.19-2.83-2.83L5 16.17V19z" />
+        </svg>
       </button>
-      <button class="tool-btn" onclick="selectFillTool()" id="btn-fill" title="Bote de Pintura (G)" aria-label="Relleno" aria-pressed="false">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13.5c0 2.48-2.02 4.5-4.5 4.5S10 15.98 10 13.5c0-2.48 4.5-8.5 4.5-8.5s4.5 6.02 4.5 8.5zM7.5 13c0 1.93-1.57 3.5-3.5 3.5S.5 14.93.5 13c0-1.93 3.5-6.5 3.5-6.5s3.5 4.57 3.5 6.5z"/></svg>
+      <button class="tool-btn" onclick="selectFillTool()" id="btn-fill" title="Bote de Pintura (G)" aria-label="Relleno"
+        aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M19 13.5c0 2.48-2.02 4.5-4.5 4.5S10 15.98 10 13.5c0-2.48 4.5-8.5 4.5-8.5s4.5 6.02 4.5 8.5zM7.5 13c0 1.93-1.57 3.5-3.5 3.5S.5 14.93.5 13c0-1.93 3.5-6.5 3.5-6.5s3.5 4.57 3.5 6.5z" />
+        </svg>
       </button>
-      <button class="tool-btn" onclick="setTool('rect')" id="btn-rect" title="Rectángulo (R)" aria-label="Rectángulo" aria-pressed="false">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+      <button class="tool-btn" onclick="setTool('picker')" id="btn-picker" title="Gotero (I/X)" aria-label="Gotero"
+        aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M17.66 7.19l-4.85-4.85c-.39-.39-1.02-.39-1.41 0L2.34 11.41c-.39.39-.39 1.02 0 1.41l4.85 4.85c.39.39 1.02.39 1.41 0l9.06-9.06c.39-.39.39-1.02 0-1.42zM7.19 16.24l-3.44-3.44 3.11-3.11 3.44 3.44-3.11 3.11z" />
+        </svg>
       </button>
-      <button class="tool-btn" onclick="setTool('mask')" id="btn-mask" title="Marcador de Animación (M)" aria-label="Marcador de capa" aria-pressed="false" style="color: #3498db;">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.5 5.6L10 7 8.6 4.5 10 2 7.5 3.4 5 2l1.4 2.5L5 7l2.5-1.4zM18 15.4L15.5 14l1.4 2.5L15.5 19l2.5-1.4L20.5 19l-1.4-2.5L20.5 14l-2.5 1.4z"/></svg>
+      <button class="tool-btn" onclick="setTool('rect')" id="btn-rect" title="Rectángulo (R)" aria-label="Rectángulo"
+        aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
+        </svg>
       </button>
-      <button class="tool-btn" onclick="setTool('line')" id="btn-line" title="Línea (L)" aria-label="Línea" aria-pressed="false">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 5h-2v14h2V5z" transform="rotate(45 12 12)"/></svg>
+      <button class="tool-btn" onclick="setTool('mask')" id="btn-mask" title="Marcador de Animación (M)"
+        aria-label="Marcador de capa" aria-pressed="false" style="color: #3498db;">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M7.5 5.6L10 7 8.6 4.5 10 2 7.5 3.4 5 2l1.4 2.5L5 7l2.5-1.4zM18 15.4L15.5 14l1.4 2.5L15.5 19l2.5-1.4L20.5 19l-1.4-2.5L20.5 14l-2.5 1.4z" />
+        </svg>
       </button>
-      
+      <button class="tool-btn" onclick="setTool('line')" id="btn-line" title="Línea (L)" aria-label="Línea"
+        aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M13 5h-2v14h2V5z" transform="rotate(45 12 12)" />
+        </svg>
+      </button>
+
       <div class="toolbar-divider" role="separator"></div>
-      
+
       <button class="tool-btn text-icon" onclick="setBrush(1)" id="b1" title="1px" aria-label="Pincel 1px">1</button>
-      <button class="tool-btn text-icon active" onclick="setBrush(2)" id="b2" title="2px" aria-label="Pincel 2px">2</button>
+      <button class="tool-btn text-icon active" onclick="setBrush(2)" id="b2" title="2px"
+        aria-label="Pincel 2px">2</button>
       <button class="tool-btn text-icon" onclick="setBrush(4)" id="b4" title="4px" aria-label="Pincel 4px">4</button>
       <button class="tool-btn text-icon" onclick="setBrush(8)" id="b8" title="8px" aria-label="Pincel 8px">8</button>
-      
+
       <div class="toolbar-divider" role="separator"></div>
-      
+
       <button class="tool-btn" onclick="mirrorH()" title="Espejo Horizontal" aria-label="Espejo horizontal">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z" />
+        </svg>
       </button>
       <button class="tool-btn" onclick="mirrorV()" title="Espejo Vertical" aria-label="Espejo vertical">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 6.99L15 3l4 3.99h-3V14h-2V6.99h-3zM9 21l4-3.99h-3V10H8v7.01H5L9 21z"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M11 6.99L15 3l4 3.99h-3V14h-2V6.99h-3zM9 21l4-3.99h-3V10H8v7.01H5L9 21z" />
+        </svg>
       </button>
       <button class="tool-btn" onclick="mirrorDiag()" title="Espejo Diagonal" aria-label="Espejo diagonal">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.45 20 9.5V4h-5.5zm.59 6.59l1.41-1.41 3.17 3.17c.39.39.39 1.02 0 1.41L16.5 17.5c-.39.39-1.02.39-1.41 0l-3.17-3.17 1.41-1.41 1.76 1.76 1.76-1.76z"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.45 20 9.5V4h-5.5zm.59 6.59l1.41-1.41 3.17 3.17c.39.39.39 1.02 0 1.41L16.5 17.5c-.39.39-1.02.39-1.41 0l-3.17-3.17 1.41-1.41 1.76 1.76 1.76-1.76z" />
+        </svg>
       </button>
-      <button class="tool-btn" onclick="convertToGameColors()" title="Corregir Colores" aria-label="Corregir colores al tema del juego">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+      <button class="tool-btn" onclick="convertToGameColors()" title="Corregir Colores"
+        aria-label="Corregir colores al tema del juego">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
+        </svg>
       </button>
     </aside>
 
     <main class="canvas-viewport">
       <div class="drawing-container" style="position: relative;">
         <canvas id="refCanvas" width="32" height="32" aria-hidden="true"
-                style="position:absolute; top:0; left:0; image-rendering:pixelated; opacity:0.35; pointer-events:none; border:none;"></canvas>
-        <canvas id="pixelCanvas" width="32" height="32"
-                role="img" aria-label="Área de dibujo pixel art - usá las herramientas del panel izquierdo"
-                tabindex="0"
-                style="position:relative; z-index:1; image-rendering:pixelated; cursor:crosshair;"></canvas>
+          style="position:absolute; top:0; left:0; image-rendering:pixelated; opacity:0.35; pointer-events:none; border:none;"></canvas>
+        <canvas id="pixelCanvas" width="32" height="32" role="img"
+          aria-label="Área de dibujo pixel art - usá las herramientas del panel izquierdo" tabindex="0"
+          style="position:relative; z-index:1; image-rendering:pixelated; cursor:crosshair;"></canvas>
         <canvas id="overlayCanvas" width="32" height="32" aria-hidden="true"
-                style="position:absolute; top:0; left:0; z-index:10; image-rendering:pixelated; pointer-events:none;"></canvas>
+          style="position:absolute; top:0; left:0; z-index:10; image-rendering:pixelated; pointer-events:none;"></canvas>
       </div>
       <div style="margin-top: 10px; display: flex; gap: 10px; justify-content: center;">
         <button class="btn btn-dark btn-small" id="toggleRefBtn" onclick="toggleRef()">
-          👁️ Ref: ON
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"
+            style="vertical-align:middle; margin-right:4px;">
+            <path
+              d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+          </svg>Ref: ON
         </button>
         <button class="btn btn-dark btn-small" id="toggleMaskBtn" onclick="toggleMaskVis()">
-          🎭 Máscara: ON
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"
+            style="vertical-align:middle; margin-right:4px;">
+            <path
+              d="M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z" />
+          </svg>Máscara: ON
         </button>
       </div>
     </main>
 
     <aside class="right-sidebar">
       <!-- Botón Biblioteca -->
-      <button class="btn" style="width:100%; margin-bottom: 10px; font-size: 11px; padding: 10px;" onclick="openLibraryModal()">
-        📚 ABRIR BIBLIOTECA
+      <button class="btn"
+        style="width:100%; margin-bottom: 10px; font-size: 11px; padding: 10px; display:flex; justify-content:center; align-items:center; gap:6px;"
+        onclick="openLibraryModal()">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+          <path
+            d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z" />
+        </svg>ABRIR BIBLIOTECA
       </button>
 
       <!-- Panel: Colores -->
       <div class="collapsible-panel">
         <div class="panel-header" onclick="togglePanel(this)">
-          <span>🎨 COLORES</span>
+          <span style="display:flex; align-items:center; gap:6px;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+              <path
+                d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
+            </svg>
+            COLORES
+          </span>
           <span class="toggle-icon">▼</span>
         </div>
         <div class="panel-content">
           <div class="panel-title" style="font-size:10px; margin-bottom:5px;">Juego</div>
           <div class="color-grid" id="colorPalette"></div>
-          <div class="panel-title" style="font-size:10px; margin:10px 0 5px 0; display:flex; justify-content:space-between;">
-            Míos <button class="btn btn-small" onclick="clearUserPalette()" style="font-size:8px; padding:0 4px;">X</button>
+          <div class="panel-title"
+            style="font-size:10px; margin:10px 0 5px 0; display:flex; justify-content:space-between;">
+            Míos <button class="btn btn-small" onclick="clearUserPalette()"
+              style="font-size:8px; padding:0 4px;">X</button>
           </div>
           <div class="color-grid" id="userPaletteGrid"></div>
+          <div style="margin-top:8px; border-top:1px solid #3d2b1f; padding-top:8px;">
+            <button class="btn btn-small" onclick="pickRainbowColor(event)"
+              style="width:100%; height:16px; background: linear-gradient(90deg, #000000 11%, #ff0000 11% 22%, #ff7f00 22% 33%, #ffff00 33% 44%, #00ff00 44% 55%, #0000ff 55% 66%, #4b0082 66% 77%, #9400d3 77% 88%, #ffffff 88%); border:1px solid #3d2b1f; cursor:pointer; padding:0; display:block;"
+              title="Elegir color personalizado">
+            </button>
+            <input type="color" id="manualColor" onchange="addUserColor(this.value)" style="display:none">
+          </div>
         </div>
       </div>
 
       <!-- Panel: Vista Previa y Exportación -->
       <div class="collapsible-panel">
         <div class="panel-header" onclick="togglePanel(this)">
-          <span>🖼️ PREVIEW</span>
-          <span class="toggle-icon">▼</span>
+          <span style="display:flex; align-items:center; gap:6px;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+              <path
+                d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
+            </svg>
+            PREVIEW
+          </span>
+          <span class="toggle-icon collapsed">▶</span>
         </div>
-        <div class="panel-content">
+        <div class="panel-content hidden">
           <canvas id="previewCanvas" width="128" height="128" style="margin:0 auto 10px auto; display:block;"></canvas>
-          <button class="btn btn-small" style="width:100%; margin-bottom:4px;" onclick="downloadImage()">Bajar PNG</button>
+          <button class="btn btn-small" style="width:100%; margin-bottom:4px;" onclick="downloadImage()">Bajar
+            PNG</button>
           <button class="btn btn-dark btn-small" style="width:100%" onclick="removeBackground()">Quitar Fondo</button>
         </div>
       </div>
@@ -735,52 +1093,144 @@
       <!-- Panel: Estilo Juego -->
       <div class="collapsible-panel">
         <div class="panel-header" onclick="togglePanel(this)">
-          <span>🎮 ESTILO JUEGO</span>
-          <span class="toggle-icon">▼</span>
+          <span style="display:flex; align-items:center; gap:6px;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+              <path
+                d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
+            </svg>
+            ESTILO JUEGO
+          </span>
+          <span class="toggle-icon collapsed">▶</span>
         </div>
-        <div class="panel-content">
-          <div class="sampling-refs" style="font-size:9px;">
-            <span>Parte</span><span>X</span><span>Y</span>
-            <span>Cabeza</span><input type="number" id="refHeadX" value="16"> <input type="number" id="refHeadY" value="8">
-            <span>Poncho</span><input type="number" id="refPonchoX" value="16"> <input type="number" id="refPonchoY" value="15">
+        <div class="panel-content hidden">
+          <div class="sampling-refs">
+            <div
+              style="margin-bottom:10px; font-weight:bold; font-size:9px; text-transform:uppercase; text-align:center; letter-spacing:1px; border-bottom:1px solid #3d2b1f; padding-bottom:6px;">
+              Filtro Retro
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin:15px 0;">
+
+              <!-- Izquierda: Escala % -->
+              <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+                <span title="Nivel de Definición (%)" style="color:#d4a574;">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
+                    <path
+                      d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM9 9h6v6H9V9z" />
+                  </svg>
+                </span>
+                <div style="height:64px; display:flex; align-items:center; justify-content:center; width:16px;">
+                  <input type="range" id="pixelDetailSlider" class="pixel-slider" min="10" max="100" value="100"
+                    step="5" style="width:64px; margin:0; transform:rotate(-90deg);"
+                    oninput="document.getElementById('pixelDetail').value=this.value; generateGamePreview()">
+                </div>
+                <div style="color:#b08870; font-size:10px;">
+                  <input type="number" id="pixelDetail" class="pixel-num" min="10" max="100" value="100" step="5"
+                    oninput="document.getElementById('pixelDetailSlider').value=this.value; generateGamePreview()">%
+                </div>
+              </div>
+
+              <!-- Centro: Canvas -->
+              <canvas id="gamePreviewCanvas" width="64" height="64"
+                style="display:block; border:1px solid #3d2b1f; background:#0a0604; border-radius:2px; box-shadow:0 0 10px rgba(0,0,0,0.5);"></canvas>
+
+              <!-- Derecha: Bloques x -->
+              <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+                <span title="Tamaño de Píxel (x)" style="color:#d4a574;">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
+                    <path d="M11 11H3V3h8v8zm2 0h8V3h-8v8zm-2 2H3v8h8v-8zm2 0v8h8v-8h-8z" />
+                  </svg>
+                </span>
+                <div style="height:64px; display:flex; align-items:center; justify-content:center; width:16px;">
+                  <input type="range" id="pixelSizeSlider" class="pixel-slider" min="1" max="16" value="1" step="1"
+                    style="width:64px; margin:0; transform:rotate(-90deg);"
+                    oninput="document.getElementById('pixelSize').value=this.value; generateGamePreview()">
+                </div>
+                <div style="color:#b08870; font-size:10px;">
+                  x<input type="number" id="pixelSize" class="pixel-num" min="1" max="16" value="1" step="1"
+                    oninput="document.getElementById('pixelSizeSlider').value=this.value; generateGamePreview()">
+                </div>
+              </div>
+
+            </div>
           </div>
-          <canvas id="gamePreviewCanvas" width="64" height="64" style="margin:10px auto; display:block;"></canvas>
-          <button class="btn btn-dark btn-small" style="width:100%" onclick="generateGamePreview()">Generar</button>
+          <button class="btn btn-dark btn-small" style="width:100%; margin-bottom:4px;"
+            onclick="generateGamePreview()">Previsualizar</button>
+          <button class="btn btn-small" style="width:100%" onclick="applyGameStyle()">Aplicar al Lienzo</button>
         </div>
       </div>
     </aside>
   </div>
 
+  <footer
+    style="background:#120b08; border-top:1px solid #3d2b1f; padding:10px 20px; font-size:10px; color:#b08870; display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
+    <span><kbd
+        style="background:#1a0f0a; border:1px solid #3d2b1f; padding:2px 5px; border-radius:2px; color:#f0e5d8; font-family:monospace;">P</kbd>
+      Lápiz</span>
+    <span><kbd
+        style="background:#1a0f0a; border:1px solid #3d2b1f; padding:2px 5px; border-radius:2px; color:#f0e5d8; font-family:monospace;">E</kbd>
+      Borrador</span>
+    <span><kbd
+        style="background:#1a0f0a; border:1px solid #3d2b1f; padding:2px 5px; border-radius:2px; color:#f0e5d8; font-family:monospace;">G</kbd>
+      Pintura</span>
+    <span><kbd
+        style="background:#1a0f0a; border:1px solid #3d2b1f; padding:2px 5px; border-radius:2px; color:#f0e5d8; font-family:monospace;">I/X</kbd>
+      Gotero</span>
+    <span><kbd
+        style="background:#1a0f0a; border:1px solid #3d2b1f; padding:2px 5px; border-radius:2px; color:#f0e5d8; font-family:monospace;">R</kbd>
+      Rectángulo</span>
+    <span><kbd
+        style="background:#1a0f0a; border:1px solid #3d2b1f; padding:2px 5px; border-radius:2px; color:#f0e5d8; font-family:monospace;">L</kbd>
+      Línea</span>
+    <span><kbd
+        style="background:#1a0f0a; border:1px solid #3d2b1f; padding:2px 5px; border-radius:2px; color:#3498db; font-family:monospace;">M</kbd>
+      Máscara</span>
+    <span><kbd
+        style="background:#1a0f0a; border:1px solid #3d2b1f; padding:2px 5px; border-radius:2px; color:#f0e5d8; font-family:monospace;">Ctrl+Click</kbd>
+      Extraer Color</span>
+    <span><kbd
+        style="background:#1a0f0a; border:1px solid #3d2b1f; padding:2px 5px; border-radius:2px; color:#f0e5d8; font-family:monospace;">Ctrl+Z/Y</kbd>
+      Undo/Redo</span>
+  </footer>
+
   <div id="libraryModal" role="dialog" aria-modal="true" aria-labelledby="libraryModalTitle">
     <div class="modal-content">
       <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h2 id="libraryModalTitle" style="font-size: 14px; margin: 0; color: #d4a574; text-transform: uppercase;">📚 Biblioteca</h2>
+        <h2 id="libraryModalTitle"
+          style="font-size: 14px; margin: 0; color: #d4a574; text-transform: uppercase; display:flex; align-items:center; gap:6px;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path
+              d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z" />
+          </svg>
+          Biblioteca
+        </h2>
         <button class="btn btn-small btn-dark" onclick="closeLibraryModal()" aria-label="Cerrar biblioteca">X</button>
       </div>
       <div class="bank-tabs" role="tablist" aria-label="Sección de biblioteca">
-        <div class="tab active" id="tab-official" role="tab"
-             aria-selected="true" aria-controls="objectBank"
-             tabindex="0" onclick="switchBank('official')"
-             onkeydown="if(event.key==='Enter'||event.key===' ')switchBank('official')">Oficial</div>
-        <div class="tab" id="tab-user" role="tab"
-             aria-selected="false" aria-controls="objectBank"
-             tabindex="-1" onclick="switchBank('user')"
-             onkeydown="if(event.key==='Enter'||event.key===' ')switchBank('user')">Mis Assets</div>
+        <div class="tab active" id="tab-official" role="tab" aria-selected="true" aria-controls="objectBank"
+          tabindex="0" onclick="switchBank('official')"
+          onkeydown="if(event.key==='Enter'||event.key===' ')switchBank('official')">Oficial</div>
+        <div class="tab" id="tab-user" role="tab" aria-selected="false" aria-controls="objectBank" tabindex="-1"
+          onclick="switchBank('user')" onkeydown="if(event.key==='Enter'||event.key===' ')switchBank('user')">Mis Assets
+        </div>
       </div>
       <div class="library-search" role="search">
-        <label for="bankSearch" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;">Buscar sprites</label>
-        <input type="search" id="bankSearch" placeholder="🔍 Buscar..." aria-label="Filtrar sprites" oninput="filterBank(this.value)">
+        <label for="bankSearch" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;">Buscar
+          sprites</label>
+        <input type="search" id="bankSearch" placeholder="🔍 Buscar..." aria-label="Filtrar sprites"
+          oninput="filterBank(this.value)">
         <span class="bank-count" id="bankCount" aria-live="polite" aria-label="sprites disponibles">0</span>
       </div>
-      <div class="object-bank modal-object-bank" id="objectBank"
-           role="tabpanel" aria-labelledby="tab-official"></div>
+      <div class="object-bank modal-object-bank" id="objectBank" role="tabpanel" aria-labelledby="tab-official"></div>
     </div>
   </div>
 
   <div id="cropModal">
     <div class="modal-content">
       <div class="panel-title" style="color:#d4a574; margin:0;">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="vertical-align:middle; margin-right:6px;"><path d="M17 15h2V7c0-1.1-.9-2-2-2H9v2h8v8zM7 17V1H5v4H1v2h4v10c0 1.1.9 2 2 2h10v4h2v-4h4v-2H7z"/></svg>RECORTAR Y PIXELAR
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"
+          style="vertical-align:middle; margin-right:6px;">
+          <path d="M17 15h2V7c0-1.1-.9-2-2-2H9v2h8v8zM7 17V1H5v4H1v2h4v10c0 1.1.9 2 2 2h10v4h2v-4h4v-2H7z" />
+        </svg>RECORTAR Y PIXELAR
       </div>
       <p style="color:#aaa; font-size:11px;">Arrastrá el mouse para seleccionar la zona que querés convertir.</p>
       <canvas id="cropCanvas"></canvas>
@@ -801,7 +1251,7 @@
     const overCtx = overlayCanvas.getContext('2d');
     const preview = document.getElementById('previewCanvas');
     const pCtx = preview.getContext('2d');
-    
+
     // Paleta de colores oficial de Horizonte
     const gameColors = [
       '#d4a574', '#8B4513', '#f0e5d8', '#2c3e50',
@@ -812,12 +1262,12 @@
       '#f1c40f', '#c0392b', '#5d4e37', '#3d3d3d',
       '#8B0000', '#8B4557', '#CD853F', '#FFD700'
     ];
-    
+
     let currentBankTab = 'official';
     let currentlyEditing = null;
     let userLibrary = JSON.parse(localStorage.getItem('horizonte_user_library') || '{}');
     let userPalette = JSON.parse(localStorage.getItem('horizonte_user_palette') || '[]');
-    let animationMask = []; 
+    let animationMask = [];
 
     let currentColor = '#d4a574';
     let currentTool = 'pencil';
@@ -829,9 +1279,9 @@
     const history = [];
     let redoHistory = [];
     let MAX_HISTORY = 50;
-    
+
     let maskVisible = true;
-    window.toggleMaskVis = function() {
+    window.toggleMaskVis = function () {
       maskVisible = !maskVisible;
       overlayCanvas.style.opacity = maskVisible ? '1' : '0';
       document.getElementById('toggleMaskBtn').textContent = maskVisible ? '🎭 Máscara: ON' : '🎭 Máscara: OFF';
@@ -839,7 +1289,7 @@
     };
 
     let refVisible = true;
-    window.toggleRef = function() {
+    window.toggleRef = function () {
       refVisible = !refVisible;
       const rc = document.getElementById('refCanvas');
       rc.style.opacity = refVisible ? '0.35' : '0';
@@ -849,14 +1299,14 @@
     function init() {
       canvas.width = 32; canvas.height = 32;
       overlayCanvas.width = 32; overlayCanvas.height = 32;
-      animationMask = Array.from({length: 32}, () => Array(32).fill(0));
-      
+      animationMask = Array.from({ length: 32 }, () => Array(32).fill(0));
+
       initPalette();
       initUserPalette();
       updateZoom(10);
       setTool('pencil');
       initBank();
-      
+
       canvas.onmousedown = startDraw;
       canvas.onmousemove = draw;
       canvas.onmouseup = stopDraw;
@@ -878,27 +1328,44 @@
 
     function selectColor(color, btn) {
       currentColor = color;
-      document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
+      const allBtns = document.querySelectorAll('.color-btn');
+      allBtns.forEach(b => b.classList.remove('active'));
+
+      if (btn) {
+        btn.classList.add('active');
+      } else {
+        // Buscar el botón que coincida (comparando en HEX)
+        allBtns.forEach(b => {
+          const bg = b.style.backgroundColor;
+          if (!bg) return;
+          // Convertir rgb a hex para comparar
+          let hex = bg;
+          if (bg.startsWith('rgb')) {
+            const match = bg.match(/\d+/g);
+            if (match) hex = rgbToHex(match.map(Number));
+          }
+          if (hex.toLowerCase() === color.toLowerCase()) b.classList.add('active');
+        });
+      }
     }
 
     function startDraw(e) {
-      const {x, y} = getCanvasCoords(e);
-      if (e.ctrlKey) { pickColor(x, y); return; }
+      const { x, y } = getCanvasCoords(e);
+      if (e.ctrlKey || currentTool === 'picker') { pickColor(x, y); return; }
       isDrawing = true;
       lastX = x; lastY = y;
       pushHistory();
       if (currentTool === 'fill') floodFill(x, y);
       else if (currentTool === 'rect' || currentTool === 'line') {
         snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        shapeStart = {x, y};
+        shapeStart = { x, y };
       } else drawPixel(x, y);
     }
 
     function draw(e) {
       if (!isDrawing) return;
-      const {x, y} = getCanvasCoords(e);
-      
+      const { x, y } = getCanvasCoords(e);
+
       if (currentTool === 'pencil' || currentTool === 'eraser' || currentTool === 'mask') {
         drawPixel(x, y);
       } else if (currentTool === 'rect' || currentTool === 'line') {
@@ -942,7 +1409,7 @@
 
     function drawPixel(x, y) {
       if (x < 0 || x >= canvas.width || y < 0 || y >= canvas.height) return;
-      
+
       const size = (currentTool === 'mask') ? 1 : brushSize;
       const offset = Math.floor(size / 2);
       const startX = x - offset;
@@ -959,16 +1426,16 @@
       if (currentTool === 'eraser') {
         ctx.clearRect(startX, startY, size, size);
         // Limpiar máscara también
-        for(let i=0; i<size; i++) {
-          for(let j=0; j<size; j++) {
-            if (animationMask[startY+j]) animationMask[startY+j][startX+i] = 0;
+        for (let i = 0; i < size; i++) {
+          for (let j = 0; j < size; j++) {
+            if (animationMask[startY + j]) animationMask[startY + j][startX + i] = 0;
           }
         }
       } else {
         ctx.fillRect(startX, startY, size, size);
       }
       updatePreview();
-      renderMaskOverlay(); 
+      renderMaskOverlay();
     }
 
     function renderMaskOverlay() {
@@ -1028,9 +1495,9 @@
       pCtx.imageSmoothingEnabled = false;
       const ratio = canvas.width / canvas.height;
       let drawW, drawH;
-      if (ratio > 1) { 
+      if (ratio > 1) {
         drawW = preview.width; drawH = preview.width / ratio;
-      } else { 
+      } else {
         drawH = preview.height; drawW = preview.height * ratio;
       }
       const offsetX = (preview.width - drawW) / 2;
@@ -1071,7 +1538,7 @@
 
     function hexToRgb(hex) {
       const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-      return r ? { r: parseInt(r[1], 16), g: parseInt(r[2], 16), b: parseInt(r[3], 16) } : {r:0,g:0,b:0};
+      return r ? { r: parseInt(r[1], 16), g: parseInt(r[2], 16), b: parseInt(r[3], 16) } : { r: 0, g: 0, b: 0 };
     }
 
     function setBrush(s) {
@@ -1081,7 +1548,7 @@
 
     function clearCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      animationMask = Array.from({length: canvas.height}, () => Array(canvas.width).fill(0));
+      animationMask = Array.from({ length: canvas.height }, () => Array(canvas.width).fill(0));
       updatePreview(); renderMaskOverlay();
     }
 
@@ -1095,7 +1562,7 @@
       canvas.width = w; canvas.height = h;
       overlayCanvas.width = w; overlayCanvas.height = h;
       ctx.drawImage(tmp, 0, 0);
-      animationMask = Array.from({length: h}, () => Array(w).fill(0));
+      animationMask = Array.from({ length: h }, () => Array(w).fill(0));
       updateZoom(document.getElementById('zoomRange').value);
       updatePreview(); renderMaskOverlay();
     }
@@ -1112,9 +1579,9 @@
         const [x, y] = stack.pop();
         const pos = (y * w + x) * 4;
         if (x < 0 || x >= w || y < 0 || y >= h) continue;
-        if (data[pos]===tR.r && data[pos+1]===tR.g && data[pos+2]===tR.b) {
-          data[pos]=rR.r; data[pos+1]=rR.g; data[pos+2]=rR.b; data[pos+3]=255;
-          stack.push([x+1, y], [x-1, y], [x, y+1], [x, y-1]);
+        if (data[pos] === tR.r && data[pos + 1] === tR.g && data[pos + 2] === tR.b) {
+          data[pos] = rR.r; data[pos + 1] = rR.g; data[pos + 2] = rR.b; data[pos + 3] = 255;
+          stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
         }
       }
       ctx.putImageData(imageData, 0, 0); updatePreview();
@@ -1149,12 +1616,12 @@
       const dst = ctx.createImageData(h, w);
       for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
         const si = (y * w + x) * 4, di = (x * h + y) * 4;
-        dst.data[di] = src.data[si]; dst.data[di+1] = src.data[si+1];
-        dst.data[di+2] = src.data[si+2]; dst.data[di+3] = src.data[si+3];
+        dst.data[di] = src.data[si]; dst.data[di + 1] = src.data[si + 1];
+        dst.data[di + 2] = src.data[si + 2]; dst.data[di + 3] = src.data[si + 3];
       }
       canvas.width = h; canvas.height = w; overlayCanvas.width = h; overlayCanvas.height = w;
       ctx.putImageData(dst, 0, 0);
-      animationMask = Array.from({length: w}, (_, x) => Array.from({length: h}, (_, y) => animationMask[y]?.[x] || 0));
+      animationMask = Array.from({ length: w }, (_, x) => Array.from({ length: h }, (_, y) => animationMask[y]?.[x] || 0));
       updatePreview(); renderMaskOverlay();
     }
 
@@ -1189,7 +1656,7 @@
       currentlyEditing = name; updateSaveButtonUI();
       canvas.width = asset.w; canvas.height = asset.h;
       overlayCanvas.width = asset.w; overlayCanvas.height = asset.h;
-      animationMask = Array.from({length: asset.h}, () => Array(asset.w).fill(0));
+      animationMask = Array.from({ length: asset.h }, () => Array(asset.w).fill(0));
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       asset.data.forEach((row, y) => row.forEach((color, x) => {
         if (color) { ctx.fillStyle = color; ctx.fillRect(x, y, 1, 1); }
@@ -1299,7 +1766,7 @@
             if (color) { pCtx.fillStyle = color; pCtx.fillRect(x, y, 1, 1); }
           }));
         }
-      } catch(e) { /* preview failed silently */ }
+      } catch (e) { /* preview failed silently */ }
     }
 
     function filterBank(searchTerm) { initBank(searchTerm); }
@@ -1334,13 +1801,37 @@
       const grid = document.getElementById('userPaletteGrid');
       if (!grid) return;
       grid.innerHTML = '';
-      userPalette.forEach(color => {
+      userPalette.forEach((color, index) => {
         const btn = document.createElement('div');
         btn.className = 'color-btn';
         btn.style.backgroundColor = color;
+        btn.title = "Click: Seleccionar | Click Derecho: Borrar";
         btn.onclick = () => selectColor(color, btn);
+        btn.oncontextmenu = (e) => {
+          e.preventDefault();
+          removeUserColor(index);
+        };
         grid.appendChild(btn);
       });
+    }
+
+    function removeUserColor(index) {
+      userPalette.splice(index, 1);
+      localStorage.setItem('horizonte_user_palette', JSON.stringify(userPalette));
+      initUserPalette();
+    }
+
+    function pickRainbowColor(e) {
+      const rect = e.target.getBoundingClientRect();
+      const pct = (e.clientX - rect.left) / rect.width;
+      const colors = ["#000000", "#ff0000", "#ff7f00", "#ffff00", "#00ff00", "#0000ff", "#4b0082", "#9400d3", "#ffffff"];
+      const picked = colors[Math.max(0, Math.min(8, Math.floor(pct * 9)))];
+      // Primero seleccionar el color (para que quede activo de inmediato)
+      selectColor(picked);
+      // Luego abrir el selector nativo para afinar
+      const i = document.getElementById('manualColor');
+      i.value = picked;
+      i.click();
     }
 
     function clearUserPalette() {
@@ -1361,12 +1852,12 @@
         }
         data.push(row); mask.push(mRow);
       }
-      
+
       const fileName = (currentlyEditing || 'nuevo_asset').toLowerCase().replace(/\s+/g, '_');
       const blob = new Blob([JSON.stringify({ w: canvas.width, h: canvas.height, data, mask })], { type: 'application/json' });
-      const a = document.createElement('a'); 
-      a.href = URL.createObjectURL(blob); 
-      a.download = fileName + '.json'; 
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = fileName + '.json';
       a.click();
     }
 
@@ -1386,13 +1877,13 @@
         try {
           const asset = JSON.parse(e.target.result);
           if (!asset.data || !asset.w || !asset.h) throw new Error("Formato inválido");
-          const name = prompt("Nombre para este asset importado:", file.name.replace('.json',''));
+          const name = prompt("Nombre para este asset importado:", file.name.replace('.json', ''));
           if (!name) return;
           userLibrary[name] = asset;
           localStorage.setItem('horizonte_user_library', JSON.stringify(userLibrary));
           switchBank('user'); // Cambiar a la pestaña de usuario para ver el resultado
           showToast(`✅ Asset "${name}" importado a la biblioteca.`);
-        } catch(err) {
+        } catch (err) {
           showToast("❌ Error al importar: El archivo no es un JSON válido de Horizonte.");
         }
       };
@@ -1412,7 +1903,7 @@
       const d = img.data;
       const cr = d[0], cg = d[1], cb = d[2];
       for (let i = 0; i < d.length; i += 4) {
-        if (Math.abs(d[i] - cr) < 30 && Math.abs(d[i+1] - cg) < 30 && Math.abs(d[i+2] - cb) < 30) d[i+3] = 0;
+        if (Math.abs(d[i] - cr) < 30 && Math.abs(d[i + 1] - cg) < 30 && Math.abs(d[i + 2] - cb) < 30) d[i + 3] = 0;
       }
       ctx.putImageData(img, 0, 0); updatePreview();
     }
@@ -1427,7 +1918,7 @@
           const cc = document.getElementById('cropCanvas');
           cc.width = img.naturalWidth; cc.height = img.naturalHeight;
           cc.getContext('2d').drawImage(img, 0, 0);
-          cc._img = img; 
+          cc._img = img;
         };
         img.src = e.target.result;
       };
@@ -1461,8 +1952,97 @@
       const gCanvas = document.getElementById('gamePreviewCanvas');
       const gCtx = gCanvas.getContext('2d');
       gCtx.imageSmoothingEnabled = false;
+
       gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
-      gCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, gCanvas.width, gCanvas.height);
+
+      const detail = parseInt(document.getElementById('pixelDetail')?.value) || 100;
+      const pixelSize = parseInt(document.getElementById('pixelSize')?.value) || 1;
+      const factor = (detail / 100) / Math.max(1, pixelSize);
+
+      // Calcular dimensiones reducidas para el efecto de pixelado
+      const lowW = Math.max(1, Math.floor(canvas.width * factor));
+      const lowH = Math.max(1, Math.floor(canvas.height * factor));
+
+      // Crear canvas temporal para la baja resolución
+      const offCanvas = document.createElement('canvas');
+      offCanvas.width = lowW;
+      offCanvas.height = lowH;
+      const offCtx = offCanvas.getContext('2d');
+      offCtx.imageSmoothingEnabled = true; // IMPORTANT: Smooth during downscale to blend pixels
+      offCtx.drawImage(canvas, 0, 0, lowW, lowH);
+
+      // Eliminar píxeles semi-transparentes generados por el suavizado
+      const imgData = offCtx.getImageData(0, 0, lowW, lowH);
+      const data = imgData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        const a = data[i + 3];
+        if (a > 0 && a < 255) {
+          if (a > 127) {
+            const factor = 255 / a;
+            data[i] = Math.min(255, data[i] * factor);
+            data[i + 1] = Math.min(255, data[i + 1] * factor);
+            data[i + 2] = Math.min(255, data[i + 2] * factor);
+            data[i + 3] = 255;
+          } else {
+            data[i + 3] = 0;
+          }
+        }
+      }
+      offCtx.putImageData(imgData, 0, 0);
+
+      // Calcular tamaño proporcional en el preview de 64x64
+      const scale = Math.min(gCanvas.width / canvas.width, gCanvas.height / canvas.height);
+      const dw = canvas.width * scale;
+      const dh = canvas.height * scale;
+      const dx = (gCanvas.width - dw) / 2;
+      const dy = (gCanvas.height - dh) / 2;
+
+      // Dibujar la imagen pixelada escalada al tamaño proporcional
+      gCtx.drawImage(offCanvas, 0, 0, lowW, lowH, dx, dy, dw, dh);
+    }
+
+    function applyGameStyle() {
+      const detail = parseInt(document.getElementById('pixelDetail')?.value) || 100;
+      const pixelSize = parseInt(document.getElementById('pixelSize')?.value) || 1;
+      if (detail === 100 && pixelSize === 1) return showToast("El detalle ya está al 100% y 1x. No hay cambios que aplicar.");
+
+      pushHistory();
+      const factor = (detail / 100) / Math.max(1, pixelSize);
+      const lowW = Math.max(1, Math.floor(canvas.width * factor));
+      const lowH = Math.max(1, Math.floor(canvas.height * factor));
+
+      const offCanvas = document.createElement('canvas');
+      offCanvas.width = lowW;
+      offCanvas.height = lowH;
+      const offCtx = offCanvas.getContext('2d');
+      offCtx.imageSmoothingEnabled = true; // IMPORTANT: Smooth during downscale to blend pixels
+      offCtx.drawImage(canvas, 0, 0, lowW, lowH);
+
+      // Eliminar píxeles semi-transparentes
+      const imgData = offCtx.getImageData(0, 0, lowW, lowH);
+      const data = imgData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        const a = data[i + 3];
+        if (a > 0 && a < 255) {
+          if (a > 127) {
+            const factor = 255 / a;
+            data[i] = Math.min(255, data[i] * factor);
+            data[i + 1] = Math.min(255, data[i + 1] * factor);
+            data[i + 2] = Math.min(255, data[i + 2] * factor);
+            data[i + 3] = 255;
+          } else {
+            data[i + 3] = 0;
+          }
+        }
+      }
+      offCtx.putImageData(imgData, 0, 0);
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(offCanvas, 0, 0, lowW, lowH, 0, 0, canvas.width, canvas.height);
+
+      updatePreview();
+      showToast("Estilo de baja definición aplicado al lienzo.");
     }
 
     function showToast(msg) {
@@ -1479,129 +2059,142 @@
 
     function pickColor(x, y) {
       const p = ctx.getImageData(x, y, 1, 1).data;
-      if (p[3] > 0) selectColor(rgbToHex(p));
+      if (p[3] > 0) {
+        const hex = rgbToHex(p);
+        addUserColor(hex);
+      }
     }
 
-    const OFFICIAL_FOGON_DATA = {"w":32,"h":48,"data":[[null,null,null,null,"#ffd700","#ffd700",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,"#ffd700","#ffd700",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,"#ffd700","#ffd700",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,"#ffd700","#ffd700",null,null,null,null,null,null,null,null,"#d4a574","#d4a574",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,"#ffd700","#ffd700",null,null,null,null,null,null,null,null,"#d4a574","#d4a574",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,"#ffd700","#ffd700",null,null,null,null,null,null,null,null,"#d4a574","#d4a574",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,"#d4a574","#d4a574",null,null,null,null,"#ffd700","#ffd700","#ffd700","#ffd700",null,null,null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#d4a574","#d4a574",null,null,null,null,null,null],[null,null,null,null,null,null,"#d4a574","#d4a574",null,null,null,null,"#ffd700","#ffd700","#ffd700","#ffd700",null,null,null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#d4a574","#d4a574",null,null,null,null,null,null],[null,null,null,null,null,null,"#d4a574","#d4a574",null,null,null,null,"#ffd700","#ffd700","#ffd700","#ffd700",null,null,null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#d4a574","#d4a574",null,null,null,null,null,null],[null,null,null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700",null,null,"#ffd700","#ffd700","#ffd700","#ffd700",null,null,null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#e67e22","#e67e22","#ffd700","#ffd700",null,null,null,null],[null,null,null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700",null,null,"#ffd700","#ffd700","#ffd700","#ffd700",null,null,null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#e67e22","#e67e22","#ffd700","#ffd700",null,null,null,null],[null,null,null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700",null,null,"#ffd700","#ffd700","#ffd700","#ffd700",null,null,null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#e67e22","#e67e22","#ffd700","#ffd700",null,null,null,null],[null,null,null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700",null,null,"#ffd700","#ffd700","#ffd700","#ffd700",null,null,null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#e67e22","#e67e22","#ffd700","#ffd700",null,null,"#ffd700","#ffd700"],[null,null,null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700",null,null,"#ffd700","#ffd700","#ffd700","#ffd700",null,null,null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#e74c3c","#e74c3c","#ffd700","#ffd700",null,null,"#ffd700","#ffd700"],[null,null,null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700",null,null,"#ffd700","#ffd700","#ffd700","#ffd700",null,null,null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#e74c3c","#e74c3c","#ffd700","#ffd700",null,null,"#ffd700","#ffd700"],[null,null,"#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700",null,null,"#ffd700","#ffd700","#ffd700","#ffd700",null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700",null,null,"#ffd700","#ffd700"],[null,null,"#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700",null,null,"#ffd700","#ffd700","#ffd700","#ffd700",null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700",null,null,"#ffd700","#ffd700"],[null,null,"#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700",null,null,"#ffd700","#ffd700","#ffd700","#ffd700",null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700",null,null,"#ffd700","#ffd700"],[null,null,"#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700",null,null,"#e67e22","#e67e22","#ffd700","#ffd700",null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#e67e22","#e67e22","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700"],[null,null,"#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700",null,null,"#e74c3c","#e74c3c","#ffd700","#ffd700",null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#e67e22","#e67e22","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700"],[null,null,"#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700",null,null,"#e74c3c","#e74c3c","#ffd700","#ffd700",null,null,"#ffd700","#ffd700","#ffd700","#ffd700","#e67e22","#e67e22","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700"],[null,null,"#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#e67e22","#e67e22","#ffd700","#ffd700","#ffd700","#ffd700","#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700","#e67e22","#e67e22","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#d4a574","#d4a574"],[null,null,"#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#e67e22","#e67e22","#ffd700","#ffd700","#ffd700","#ffd700","#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700","#e74c3c","#e74c3c","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#d4a574","#d4a574"],[null,null,"#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#e67e22","#e67e22","#ffd700","#ffd700","#ffd700","#ffd700","#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700","#e74c3c","#e74c3c","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#d4a574","#d4a574"],[null,null,"#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#e67e22","#e67e22","#ffd700","#ffd700","#ffd700","#ffd700","#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#e67e22","#e67e22","#ffd700","#ffd700","#ffd700","#ffd700",null,null],[null,null,"#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#e74c3c","#e74c3c","#ffd700","#ffd700","#ffd700","#ffd700","#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#e67e22","#e67e22","#ffd700","#ffd700","#ffd700","#ffd700",null,null],[null,null,"#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#e74c3c","#e74c3c","#ffd700","#ffd700","#ffd700","#ffd700","#d4a574","#d4a574","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#e67e22","#e67e22","#ffd700","#ffd700","#ffd700","#ffd700",null,null],[null,null,"#d4a574","#d4a574","#e67e22","#e67e22","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#e67e22","#e67e22","#ffd700","#ffd700","#e67e22","#e67e22","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#e74c3c","#e74c3c","#e74c3c","#ffd700","#ffd700","#d4a574","#d4a574",null,null],[null,null,"#d4a574","#d4a574","#e67e22","#e67e22","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#e67e22","#e67e22","#ffd700","#ffd700","#e67e22","#e67e22","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#e74c3c","#e74c3c","#e74c3c","#ffd700","#ffd700","#d4a574","#d4a574",null,null],[null,null,"#d4a574","#d4a574","#e67e22","#e67e22","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#e74c3c","#e74c3c","#e67e22","#ffd700","#ffd700","#e67e22","#e67e22","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#e74c3c","#e74c3c","#c0392b","#ffd700","#ffd700","#d4a574","#d4a574",null,null],[null,null,"#d4a574","#d4a574","#e67e22","#e74c3c","#e74c3c","#e67e22","#ffd700","#ffd700","#e67e22","#e74c3c","#e74c3c","#e67e22","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#ffd700","#e67e22","#e67e22","#e74c3c","#e74c3c","#e74c3c","#e67e22","#ffd700","#ffd700","#d4a574","#d4a574",null,null],[null,null,"#d4a574","#d4a574","#e67e22","#e74c3c","#e74c3c","#e67e22","#ffd700","#ffd700","#e67e22","#e74c3c","#e74c3c","#e67e22","#ffd700","#e74c3c","#e74c3c","#c0392b","#ffd700","#ffd700","#e67e22","#e67e22","#e74c3c","#e74c3c","#e74c3c","#e67e22","#ffd700","#ffd700","#d4a574","#d4a574",null,null],[null,null,"#d4a574","#d4a574","#e67e22","#e74c3c","#e74c3c","#e67e22","#ffd700","#ffd700","#e74c3c","#e74c3c","#c0392b","#e67e22","#ffd700","#e74c3c","#e74c3c","#e74c3c","#ffd700","#ffd700","#e67e22","#e74c3c","#e74c3c","#e74c3c","#c0392b","#e67e22","#ffd700","#ffd700","#d4a574","#d4a574",null,null],[null,null,"#d4a574","#d4a574","#e67e22","#e67e22","#e67e22","#e67e22","#ffd700","#ffd700","#e74c3c","#e74c3c","#e74c3c","#e67e22","#e67e22","#e74c3c","#e74c3c","#e74c3c","#e67e22","#e67e22","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#c0392b","#e74c3c","#e74c3c","#e67e22","#d4a574","#d4a574",null,null],[null,null,"#d4a574","#d4a574","#e67e22","#e67e22","#e67e22","#e67e22","#ffd700","#ffd700","#e74c3c","#e74c3c","#e74c3c","#e67e22","#e67e22","#e74c3c","#e74c3c","#e74c3c","#e67e22","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#c0392b","#e74c3c","#e74c3c","#e67e22","#d4a574","#d4a574",null,null],[null,null,"#d4a574","#d4a574","#e67e22","#e67e22","#c0392b","#c0392b","#ffd700","#ffd700","#e67e22","#e74c3c","#e74c3c","#c0392b","#e67e22","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#c0392b","#e74c3c","#e74c3c","#e67e22","#d4a574","#d4a574",null,null],[null,null,"#d4a574","#d4a574","#e67e22","#e67e22","#e74c3c","#e74c3c","#e67e22","#e67e22","#e67e22","#e74c3c","#e74c3c","#e74c3c","#e67e22","#e74c3c","#e74c3c","#c0392b","#e74c3c","#e74c3c","#e74c3c","#c0392b","#e74c3c","#e74c3c","#c0392b","#e74c3c","#e74c3c","#e67e22","#d4a574","#d4a574",null,null],[null,null,"#d4a574","#d4a574","#e67e22","#e67e22","#e74c3c","#e74c3c","#e74c3c","#e67e22","#e67e22","#e74c3c","#e74c3c","#e74c3c","#e67e22","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#c0392b","#e74c3c","#e74c3c","#e67e22","#d4a574","#d4a574",null,null],[null,null,"#d4a574","#d4a574","#e67e22","#e67e22","#e74c3c","#e74c3c","#e74c3c","#c0392b","#c0392b","#c0392b","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#c0392b","#e74c3c","#e74c3c","#e74c3c","#c0392b","#e74c3c","#e74c3c","#e67e22","#e67e22","#d4a574","#d4a574",null,null],[null,null,null,null,"#d4a574","#d4a574","#c0392b","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#d4a574","#d4a574","#d4a574","#d4a574",null,null],[null,null,null,null,"#d4a574","#d4a574","#c0392b","#c0392b","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#d4a574","#d4a574","#d4a574","#d4a574",null,null],[null,null,null,null,"#d4a574","#d4a574","#c0392b","#c0392b","#c0392b","#c0392b","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#e74c3c","#e74c3c","#e74c3c","#e67e22","#e67e22","#d4a574","#d4a574","#d4a574","#d4a574",null,null],[null,null,null,null,"#d4a574","#d4a574","#d4a574","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#e74c3c","#e74c3c","#d4a574","#d4a574","#d4a574","#d4a574",null,null,null,null],[null,null,null,null,"#d4a574","#d4a574","#d4a574","#d4a574","#d4a574","#c0392b","#e74c3c","#e74c3c","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#e67e22","#d4a574","#d4a574","#d4a574","#d4a574","#d4a574","#d4a574",null,null,null,null],[null,null,null,null,"#d4a574","#d4a574","#d4a574","#d4a574","#d4a574","#d4a574","#e74c3c","#e74c3c","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#e67e22","#d4a574","#d4a574","#d4a574","#d4a574","#d4a574","#d4a574",null,null,null,null],[null,null,null,null,null,null,null,null,"#d4a574","#d4a574","#d4a574","#d4a574","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#d4a574","#d4a574","#d4a574","#d4a574",null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,"#d4a574","#d4a574","#d4a574","#d4a574","#d4a574","#d4a574","#c0392b","#c0392b","#c0392b","#c0392b","#c0392b","#d4a574","#d4a574","#d4a574","#d4a574","#d4a574",null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,"#d4a574","#d4a574","#d4a574","#d4a574","#d4a574","#d4a574","#e67e22","#e67e22","#d4a574","#d4a574","#d4a574","#d4a574","#d4a574","#d4a574","#d4a574","#d4a574",null,null,null,null,null,null,null,null]],"mask":[[0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,5,5,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,5,5,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,5,5,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,0,0,0,0,5,5,5,5,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,0,0,0,0,5,5,5,5,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,0,0,0,0,5,5,5,5,0,4,0,0,0,0,0,0],[0,0,0,0,5,5,5,5,5,5,0,0,5,5,5,5,0,0,0,0,5,5,5,5,4,5,5,5,0,0,0,0],[0,0,0,0,5,5,5,5,5,5,0,0,5,5,5,5,0,0,0,0,5,5,5,5,4,4,5,5,0,0,0,0],[0,0,0,0,5,5,5,5,5,5,0,0,5,5,5,5,0,0,0,0,5,5,5,5,4,4,5,5,0,0,5,0],[0,0,0,0,5,5,5,5,5,5,0,0,5,5,5,5,0,0,0,0,5,5,5,5,4,4,5,5,0,0,5,5],[0,0,0,0,5,5,5,5,5,5,0,0,5,5,5,5,0,0,0,0,5,5,5,5,4,4,5,5,0,0,5,5],[0,0,0,0,5,5,5,5,5,5,0,5,5,5,5,5,0,0,0,0,5,5,5,5,4,0,5,5,0,0,5,5],[0,0,0,0,5,5,5,5,5,5,0,0,5,5,5,5,0,0,5,5,5,5,0,4,4,5,5,5,0,0,5,5],[0,0,0,0,5,5,5,5,5,5,0,0,5,5,5,5,0,5,5,5,5,5,4,4,5,5,5,5,0,0,5,5],[0,0,0,0,5,5,5,5,5,5,0,0,5,5,5,5,0,0,5,5,5,5,4,4,5,5,5,5,0,0,5,5],[0,0,0,0,5,5,5,5,5,5,0,0,5,5,5,5,0,0,5,5,5,5,4,0,5,5,5,5,5,5,5,5],[0,0,0,0,5,5,5,5,5,5,0,0,5,5,5,5,0,0,5,5,5,5,4,0,5,5,5,5,5,5,5,5],[0,0,0,0,5,5,5,5,5,5,0,0,5,5,5,5,0,0,5,5,5,5,4,4,5,5,5,5,5,5,5,5],[0,0,0,0,5,5,5,5,5,5,0,4,5,5,5,5,0,0,5,5,5,5,0,4,5,5,5,5,5,5,5,5],[0,0,0,0,5,5,5,5,5,5,4,4,5,5,5,5,4,4,5,5,5,5,0,4,5,5,5,5,5,5,0,5],[0,0,0,0,5,5,5,5,5,5,4,4,5,5,5,5,4,4,5,5,5,5,5,4,5,5,5,5,5,5,0,0],[0,0,0,0,5,5,5,5,5,5,4,4,5,5,5,5,4,4,5,5,5,5,5,4,0,0,5,5,5,5,0,0],[0,0,0,0,5,5,5,5,5,5,4,0,5,5,5,5,4,4,5,5,5,5,5,4,0,0,5,5,5,5,0,0],[0,0,0,0,5,5,5,5,5,5,4,4,5,5,5,5,4,0,5,5,5,5,5,4,4,4,5,5,5,5,0,0],[0,0,0,0,4,4,5,5,5,5,5,4,5,5,5,5,4,0,5,5,5,5,5,4,4,4,5,5,5,0,0,0],[0,0,0,0,4,4,5,5,5,5,5,5,5,5,5,5,4,0,5,5,5,5,5,4,0,4,5,5,0,0,0,0],[0,0,0,4,4,4,5,5,5,5,5,5,4,5,5,5,4,4,5,5,5,5,5,4,0,4,5,5,0,0,0,0],[0,0,0,4,4,4,0,4,5,5,4,4,4,0,5,5,4,4,5,5,5,0,4,4,0,0,5,5,0,0,0,0],[0,0,0,4,4,4,4,4,5,5,4,4,4,0,5,5,4,4,5,5,5,0,4,4,4,4,5,5,0,0,0,0],[0,0,0,4,4,4,4,4,5,5,4,4,4,0,5,4,4,4,5,5,0,0,4,4,4,0,5,5,0,0,0,0],[0,0,0,4,4,4,4,4,5,5,4,4,4,0,0,4,4,4,5,0,4,0,4,0,4,0,4,0,0,0,0,0],[0,0,0,4,4,4,4,4,5,5,4,4,4,4,0,4,4,4,0,0,4,4,4,4,4,4,4,0,0,0,0,0],[0,0,0,4,4,4,4,4,5,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,0,0,0,0],[0,0,0,0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,0,0,0,0],[0,0,0,0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,4,4,4,4,4,4,4,0,0,0,0,0],[0,0,0,0,4,4,4,0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,4,4,0,0,0,0,0,0],[0,0,0,0,0,4,4,0,4,4,4,4,4,4,4,0,4,4,4,4,0,4,4,4,4,4,0,0,0,0,0,0],[0,0,0,0,0,0,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,4,4,4,4,0,0,0,0,0,0,0],[0,0,0,0,0,0,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,4,4,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,4,4,4,4,0,0,0,0,0,0,0,0,0,0,4,4,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,4,4,4,4,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]};
+    function addUserColor(color) {
+      const hex = color.toLowerCase();
+      if (!gameColors.includes(hex) && !userPalette.includes(hex)) {
+        userPalette.push(hex);
+        localStorage.setItem('horizonte_user_palette', JSON.stringify(userPalette));
+        initUserPalette();
+      }
+      selectColor(hex);
+    }
+
+    const OFFICIAL_FOGON_DATA = { "w": 32, "h": 48, "data": [[null, null, null, null, "#ffd700", "#ffd700", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], [null, null, null, null, "#ffd700", "#ffd700", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], [null, null, null, null, "#ffd700", "#ffd700", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], [null, null, null, null, "#ffd700", "#ffd700", null, null, null, null, null, null, null, null, "#d4a574", "#d4a574", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], [null, null, null, null, "#ffd700", "#ffd700", null, null, null, null, null, null, null, null, "#d4a574", "#d4a574", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], [null, null, null, null, "#ffd700", "#ffd700", null, null, null, null, null, null, null, null, "#d4a574", "#d4a574", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], [null, null, null, null, null, null, "#d4a574", "#d4a574", null, null, null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#d4a574", "#d4a574", null, null, null, null, null, null], [null, null, null, null, null, null, "#d4a574", "#d4a574", null, null, null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#d4a574", "#d4a574", null, null, null, null, null, null], [null, null, null, null, null, null, "#d4a574", "#d4a574", null, null, null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#d4a574", "#d4a574", null, null, null, null, null, null], [null, null, null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#ffd700", "#ffd700", null, null, null, null], [null, null, null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#ffd700", "#ffd700", null, null, null, null], [null, null, null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#ffd700", "#ffd700", null, null, null, null], [null, null, null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700"], [null, null, null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e74c3c", "#e74c3c", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700"], [null, null, null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e74c3c", "#e74c3c", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700"], [null, null, "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700"], [null, null, "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700"], [null, null, "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700"], [null, null, "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, "#e67e22", "#e67e22", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700"], [null, null, "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, "#e74c3c", "#e74c3c", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700"], [null, null, "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null, "#e74c3c", "#e74c3c", "#ffd700", "#ffd700", null, null, "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700"], [null, null, "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#d4a574", "#d4a574"], [null, null, "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e74c3c", "#e74c3c", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#d4a574", "#d4a574"], [null, null, "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e74c3c", "#e74c3c", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#d4a574", "#d4a574"], [null, null, "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null], [null, null, "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e74c3c", "#e74c3c", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null], [null, null, "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e74c3c", "#e74c3c", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#d4a574", "#d4a574", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#ffd700", "#ffd700", null, null], [null, null, "#d4a574", "#d4a574", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e74c3c", "#e74c3c", "#e74c3c", "#ffd700", "#ffd700", "#d4a574", "#d4a574", null, null], [null, null, "#d4a574", "#d4a574", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e74c3c", "#e74c3c", "#e74c3c", "#ffd700", "#ffd700", "#d4a574", "#d4a574", null, null], [null, null, "#d4a574", "#d4a574", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e74c3c", "#e74c3c", "#e67e22", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e74c3c", "#e74c3c", "#c0392b", "#ffd700", "#ffd700", "#d4a574", "#d4a574", null, null], [null, null, "#d4a574", "#d4a574", "#e67e22", "#e74c3c", "#e74c3c", "#e67e22", "#ffd700", "#ffd700", "#e67e22", "#e74c3c", "#e74c3c", "#e67e22", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#e74c3c", "#e74c3c", "#e74c3c", "#e67e22", "#ffd700", "#ffd700", "#d4a574", "#d4a574", null, null], [null, null, "#d4a574", "#d4a574", "#e67e22", "#e74c3c", "#e74c3c", "#e67e22", "#ffd700", "#ffd700", "#e67e22", "#e74c3c", "#e74c3c", "#e67e22", "#ffd700", "#e74c3c", "#e74c3c", "#c0392b", "#ffd700", "#ffd700", "#e67e22", "#e67e22", "#e74c3c", "#e74c3c", "#e74c3c", "#e67e22", "#ffd700", "#ffd700", "#d4a574", "#d4a574", null, null], [null, null, "#d4a574", "#d4a574", "#e67e22", "#e74c3c", "#e74c3c", "#e67e22", "#ffd700", "#ffd700", "#e74c3c", "#e74c3c", "#c0392b", "#e67e22", "#ffd700", "#e74c3c", "#e74c3c", "#e74c3c", "#ffd700", "#ffd700", "#e67e22", "#e74c3c", "#e74c3c", "#e74c3c", "#c0392b", "#e67e22", "#ffd700", "#ffd700", "#d4a574", "#d4a574", null, null], [null, null, "#d4a574", "#d4a574", "#e67e22", "#e67e22", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#e74c3c", "#e74c3c", "#e74c3c", "#e67e22", "#e67e22", "#e74c3c", "#e74c3c", "#e74c3c", "#e67e22", "#e67e22", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#c0392b", "#e74c3c", "#e74c3c", "#e67e22", "#d4a574", "#d4a574", null, null], [null, null, "#d4a574", "#d4a574", "#e67e22", "#e67e22", "#e67e22", "#e67e22", "#ffd700", "#ffd700", "#e74c3c", "#e74c3c", "#e74c3c", "#e67e22", "#e67e22", "#e74c3c", "#e74c3c", "#e74c3c", "#e67e22", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#c0392b", "#e74c3c", "#e74c3c", "#e67e22", "#d4a574", "#d4a574", null, null], [null, null, "#d4a574", "#d4a574", "#e67e22", "#e67e22", "#c0392b", "#c0392b", "#ffd700", "#ffd700", "#e67e22", "#e74c3c", "#e74c3c", "#c0392b", "#e67e22", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#c0392b", "#e74c3c", "#e74c3c", "#e67e22", "#d4a574", "#d4a574", null, null], [null, null, "#d4a574", "#d4a574", "#e67e22", "#e67e22", "#e74c3c", "#e74c3c", "#e67e22", "#e67e22", "#e67e22", "#e74c3c", "#e74c3c", "#e74c3c", "#e67e22", "#e74c3c", "#e74c3c", "#c0392b", "#e74c3c", "#e74c3c", "#e74c3c", "#c0392b", "#e74c3c", "#e74c3c", "#c0392b", "#e74c3c", "#e74c3c", "#e67e22", "#d4a574", "#d4a574", null, null], [null, null, "#d4a574", "#d4a574", "#e67e22", "#e67e22", "#e74c3c", "#e74c3c", "#e74c3c", "#e67e22", "#e67e22", "#e74c3c", "#e74c3c", "#e74c3c", "#e67e22", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#c0392b", "#e74c3c", "#e74c3c", "#e67e22", "#d4a574", "#d4a574", null, null], [null, null, "#d4a574", "#d4a574", "#e67e22", "#e67e22", "#e74c3c", "#e74c3c", "#e74c3c", "#c0392b", "#c0392b", "#c0392b", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#c0392b", "#e74c3c", "#e74c3c", "#e74c3c", "#c0392b", "#e74c3c", "#e74c3c", "#e67e22", "#e67e22", "#d4a574", "#d4a574", null, null], [null, null, null, null, "#d4a574", "#d4a574", "#c0392b", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#d4a574", "#d4a574", "#d4a574", "#d4a574", null, null], [null, null, null, null, "#d4a574", "#d4a574", "#c0392b", "#c0392b", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#d4a574", "#d4a574", "#d4a574", "#d4a574", null, null], [null, null, null, null, "#d4a574", "#d4a574", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#e74c3c", "#e74c3c", "#e74c3c", "#e74c3c", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#e74c3c", "#e74c3c", "#e74c3c", "#e67e22", "#e67e22", "#d4a574", "#d4a574", "#d4a574", "#d4a574", null, null], [null, null, null, null, "#d4a574", "#d4a574", "#d4a574", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#e74c3c", "#e74c3c", "#d4a574", "#d4a574", "#d4a574", "#d4a574", null, null, null, null], [null, null, null, null, "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#c0392b", "#e74c3c", "#e74c3c", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#e67e22", "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#d4a574", null, null, null, null], [null, null, null, null, "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#e74c3c", "#e74c3c", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#e67e22", "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#d4a574", null, null, null, null], [null, null, null, null, null, null, null, null, "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#d4a574", "#d4a574", "#d4a574", "#d4a574", null, null, null, null, null, null, null, null], [null, null, null, null, null, null, null, null, "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#c0392b", "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#d4a574", null, null, null, null, null, null, null, null], [null, null, null, null, null, null, null, null, "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#e67e22", "#e67e22", "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#d4a574", "#d4a574", null, null, null, null, null, null, null, null]], "mask": [[0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 0, 0, 0, 0, 5, 5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 0, 0, 0, 0, 5, 5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 0, 0, 0, 0, 5, 5, 5, 5, 0, 4, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 0, 0, 0, 0, 5, 5, 5, 5, 4, 5, 5, 5, 0, 0, 0, 0], [0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 0, 0, 0, 0, 5, 5, 5, 5, 4, 4, 5, 5, 0, 0, 0, 0], [0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 0, 0, 0, 0, 5, 5, 5, 5, 4, 4, 5, 5, 0, 0, 5, 0], [0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 0, 0, 0, 0, 5, 5, 5, 5, 4, 4, 5, 5, 0, 0, 5, 5], [0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 0, 0, 0, 0, 5, 5, 5, 5, 4, 4, 5, 5, 0, 0, 5, 5], [0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 0, 5, 5, 5, 5, 5, 0, 0, 0, 0, 5, 5, 5, 5, 4, 0, 5, 5, 0, 0, 5, 5], [0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 0, 4, 4, 5, 5, 5, 0, 0, 5, 5], [0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 0, 5, 5, 5, 5, 5, 4, 4, 5, 5, 5, 5, 0, 0, 5, 5], [0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 4, 4, 5, 5, 5, 5, 0, 0, 5, 5], [0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 4, 0, 5, 5, 5, 5, 5, 5, 5, 5], [0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 4, 0, 5, 5, 5, 5, 5, 5, 5, 5], [0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5], [0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 0, 4, 5, 5, 5, 5, 0, 0, 5, 5, 5, 5, 0, 4, 5, 5, 5, 5, 5, 5, 5, 5], [0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 4, 4, 5, 5, 5, 5, 4, 4, 5, 5, 5, 5, 0, 4, 5, 5, 5, 5, 5, 5, 0, 5], [0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 4, 4, 5, 5, 5, 5, 4, 4, 5, 5, 5, 5, 5, 4, 5, 5, 5, 5, 5, 5, 0, 0], [0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 4, 4, 5, 5, 5, 5, 4, 4, 5, 5, 5, 5, 5, 4, 0, 0, 5, 5, 5, 5, 0, 0], [0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 4, 0, 5, 5, 5, 5, 4, 4, 5, 5, 5, 5, 5, 4, 0, 0, 5, 5, 5, 5, 0, 0], [0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 4, 4, 5, 5, 5, 5, 4, 0, 5, 5, 5, 5, 5, 4, 4, 4, 5, 5, 5, 5, 0, 0], [0, 0, 0, 0, 4, 4, 5, 5, 5, 5, 5, 4, 5, 5, 5, 5, 4, 0, 5, 5, 5, 5, 5, 4, 4, 4, 5, 5, 5, 0, 0, 0], [0, 0, 0, 0, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 0, 5, 5, 5, 5, 5, 4, 0, 4, 5, 5, 0, 0, 0, 0], [0, 0, 0, 4, 4, 4, 5, 5, 5, 5, 5, 5, 4, 5, 5, 5, 4, 4, 5, 5, 5, 5, 5, 4, 0, 4, 5, 5, 0, 0, 0, 0], [0, 0, 0, 4, 4, 4, 0, 4, 5, 5, 4, 4, 4, 0, 5, 5, 4, 4, 5, 5, 5, 0, 4, 4, 0, 0, 5, 5, 0, 0, 0, 0], [0, 0, 0, 4, 4, 4, 4, 4, 5, 5, 4, 4, 4, 0, 5, 5, 4, 4, 5, 5, 5, 0, 4, 4, 4, 4, 5, 5, 0, 0, 0, 0], [0, 0, 0, 4, 4, 4, 4, 4, 5, 5, 4, 4, 4, 0, 5, 4, 4, 4, 5, 5, 0, 0, 4, 4, 4, 0, 5, 5, 0, 0, 0, 0], [0, 0, 0, 4, 4, 4, 4, 4, 5, 5, 4, 4, 4, 0, 0, 4, 4, 4, 5, 0, 4, 0, 4, 0, 4, 0, 4, 0, 0, 0, 0, 0], [0, 0, 0, 4, 4, 4, 4, 4, 5, 5, 4, 4, 4, 4, 0, 4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0], [0, 0, 0, 4, 4, 4, 4, 4, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0], [0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0], [0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0], [0, 0, 0, 0, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 4, 4, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]] };
 
     const OFFICIAL_SPRITES = {
       'Martín': (c, mask) => {
         const nx = 16, ny = 20;
-        c.fillStyle = 'rgba(0,0,0,0.2)'; c.fillRect(nx-14, ny+22, 28, 4);
-        c.fillStyle = '#3d3d3d'; c.fillRect(nx-10, ny-20, 20, 4); c.fillRect(nx-14, ny-16, 28, 4);
-        c.fillStyle = '#d4a574'; c.fillRect(nx-6, ny-12, 12, 8);
-        c.fillStyle = '#1a0f0a'; c.fillRect(nx-6, ny-4, 12, 4);
-        c.fillStyle = '#8B0000'; c.fillRect(nx-10, ny, 20, 16);
-        c.fillStyle = '#c0392b'; c.fillRect(nx-6, ny, 12, 16);
-        c.fillStyle = '#2c3e50'; c.fillRect(nx-8, ny+16, 6, 8); c.fillRect(nx+2, ny+16, 6, 8);
-        c.fillStyle = '#1a0f0a'; c.fillRect(nx-8, ny+24, 6, 4); c.fillRect(nx+2, ny+24, 6, 4);
-        c.fillStyle = '#d4a574'; c.fillRect(nx+10, ny+4, 4, 4);
-        c.fillStyle = '#bdc3c7'; c.fillRect(nx+14, ny-4, 2, 10);
-        c.fillStyle = '#7f8c8d'; c.fillRect(nx+13, ny+6, 4, 4);
+        c.fillStyle = 'rgba(0,0,0,0.2)'; c.fillRect(nx - 14, ny + 22, 28, 4);
+        c.fillStyle = '#3d3d3d'; c.fillRect(nx - 10, ny - 20, 20, 4); c.fillRect(nx - 14, ny - 16, 28, 4);
+        c.fillStyle = '#d4a574'; c.fillRect(nx - 6, ny - 12, 12, 8);
+        c.fillStyle = '#1a0f0a'; c.fillRect(nx - 6, ny - 4, 12, 4);
+        c.fillStyle = '#8B0000'; c.fillRect(nx - 10, ny, 20, 16);
+        c.fillStyle = '#c0392b'; c.fillRect(nx - 6, ny, 12, 16);
+        c.fillStyle = '#2c3e50'; c.fillRect(nx - 8, ny + 16, 6, 8); c.fillRect(nx + 2, ny + 16, 6, 8);
+        c.fillStyle = '#1a0f0a'; c.fillRect(nx - 8, ny + 24, 6, 4); c.fillRect(nx + 2, ny + 24, 6, 4);
+        c.fillStyle = '#d4a574'; c.fillRect(nx + 10, ny + 4, 4, 4);
+        c.fillStyle = '#bdc3c7'; c.fillRect(nx + 14, ny - 4, 2, 10);
+        c.fillStyle = '#7f8c8d'; c.fillRect(nx + 13, ny + 6, 4, 4);
         if (mask) {
-          for(let y=ny-4;y<ny+6;y++){if(mask[y]){mask[y][nx+14]=1;mask[y][nx+15]=1;}}
-          for(let y=ny+6;y<ny+10;y++){if(mask[y]){mask[y][nx+13]=1;mask[y][nx+14]=1;mask[y][nx+15]=1;mask[y][nx+16]=1;}}
-          for(let y=ny+4;y<ny+8;y++){if(mask[y]){mask[y][nx+10]=2;mask[y][nx+11]=2;mask[y][nx+12]=2;mask[y][nx+13]=2;}}
-          for(let y=ny-12;y<ny;y++){if(mask[y])for(let x=nx-6;x<nx+6;x++)mask[y][x]=3;}
+          for (let y = ny - 4; y < ny + 6; y++) { if (mask[y]) { mask[y][nx + 14] = 1; mask[y][nx + 15] = 1; } }
+          for (let y = ny + 6; y < ny + 10; y++) { if (mask[y]) { mask[y][nx + 13] = 1; mask[y][nx + 14] = 1; mask[y][nx + 15] = 1; mask[y][nx + 16] = 1; } }
+          for (let y = ny + 4; y < ny + 8; y++) { if (mask[y]) { mask[y][nx + 10] = 2; mask[y][nx + 11] = 2; mask[y][nx + 12] = 2; mask[y][nx + 13] = 2; } }
+          for (let y = ny - 12; y < ny; y++) { if (mask[y]) for (let x = nx - 6; x < nx + 6; x++)mask[y][x] = 3; }
         }
       },
       'Don Mateo': (c) => {
         const nx = 16, ny = 12;
         c.fillStyle = 'rgba(0,0,0,0.15)'; c.fillRect(6, 44, 20, 4);
-        c.fillStyle = '#e74c3c'; c.fillRect(nx-5, ny-8, 10, 4);
-        c.fillStyle = '#d4a574'; c.fillRect(nx-5, ny-4, 10, 4);
-        c.fillStyle = '#e74c3c'; c.fillRect(nx-5, ny, 10, 3);
-        c.fillStyle = '#000000'; c.fillRect(nx-8, ny+3, 16, 4);
-        c.fillStyle = '#8b7355'; c.fillRect(nx-9, ny+7, 18, 14);
-        c.fillStyle = '#5c4a3d'; c.fillRect(nx-3, ny+7, 6, 14);
-        c.fillStyle = '#d4a574'; c.fillRect(nx-9, ny+21, 3, 2); c.fillRect(nx+6, ny+21, 3, 2);
-        c.fillStyle = '#2c3e50'; c.fillRect(nx-6, ny+23, 4, 10); c.fillRect(nx+2, ny+23, 4, 10);
-        c.fillStyle = '#000000'; c.fillRect(nx-6, ny+33, 4, 4); c.fillRect(nx+2, ny+33, 4, 4);
+        c.fillStyle = '#e74c3c'; c.fillRect(nx - 5, ny - 8, 10, 4);
+        c.fillStyle = '#d4a574'; c.fillRect(nx - 5, ny - 4, 10, 4);
+        c.fillStyle = '#e74c3c'; c.fillRect(nx - 5, ny, 10, 3);
+        c.fillStyle = '#000000'; c.fillRect(nx - 8, ny + 3, 16, 4);
+        c.fillStyle = '#8b7355'; c.fillRect(nx - 9, ny + 7, 18, 14);
+        c.fillStyle = '#5c4a3d'; c.fillRect(nx - 3, ny + 7, 6, 14);
+        c.fillStyle = '#d4a574'; c.fillRect(nx - 9, ny + 21, 3, 2); c.fillRect(nx + 6, ny + 21, 3, 2);
+        c.fillStyle = '#2c3e50'; c.fillRect(nx - 6, ny + 23, 4, 10); c.fillRect(nx + 2, ny + 23, 4, 10);
+        c.fillStyle = '#000000'; c.fillRect(nx - 6, ny + 33, 4, 4); c.fillRect(nx + 2, ny + 33, 4, 4);
       },
       'Soldado': (c) => {
         const nx = 16, ny = 22;
-        c.fillStyle = 'rgba(0,0,0,0.2)'; c.fillRect(nx-12, ny+22, 24, 4);
-        c.fillStyle = '#1a1a2e'; c.fillRect(nx-8, ny-22, 16, 10);
-        c.fillStyle = '#e74c3c'; c.fillRect(nx-8, ny-24, 16, 2);
-        c.fillStyle = '#f1c40f'; c.fillRect(nx-10, ny-12, 20, 2);
-        c.fillStyle = '#f5cba7'; c.fillRect(nx-6, ny-10, 12, 8);
-        c.fillStyle = '#2F4F4F'; c.fillRect(nx-8, ny-2, 16, 14);
-        c.fillStyle = '#ffffff'; c.fillRect(nx-6, ny-2, 4, 14); c.fillRect(nx+2, ny-2, 4, 14);
-        c.fillStyle = '#ecf0f1'; c.fillRect(nx-6, ny+12, 4, 8); c.fillRect(nx+2, ny+12, 4, 8);
-        c.fillStyle = '#000000'; c.fillRect(nx-6, ny+20, 4, 4); c.fillRect(nx+2, ny+20, 4, 4);
-        c.fillStyle = '#5D4037'; c.fillRect(nx+12, ny-4, 2, 12);
-        c.fillStyle = '#bdc3c7'; c.fillRect(nx+12, ny-6, 2, 2);
+        c.fillStyle = 'rgba(0,0,0,0.2)'; c.fillRect(nx - 12, ny + 22, 24, 4);
+        c.fillStyle = '#1a1a2e'; c.fillRect(nx - 8, ny - 22, 16, 10);
+        c.fillStyle = '#e74c3c'; c.fillRect(nx - 8, ny - 24, 16, 2);
+        c.fillStyle = '#f1c40f'; c.fillRect(nx - 10, ny - 12, 20, 2);
+        c.fillStyle = '#f5cba7'; c.fillRect(nx - 6, ny - 10, 12, 8);
+        c.fillStyle = '#2F4F4F'; c.fillRect(nx - 8, ny - 2, 16, 14);
+        c.fillStyle = '#ffffff'; c.fillRect(nx - 6, ny - 2, 4, 14); c.fillRect(nx + 2, ny - 2, 4, 14);
+        c.fillStyle = '#ecf0f1'; c.fillRect(nx - 6, ny + 12, 4, 8); c.fillRect(nx + 2, ny + 12, 4, 8);
+        c.fillStyle = '#000000'; c.fillRect(nx - 6, ny + 20, 4, 4); c.fillRect(nx + 2, ny + 20, 4, 4);
+        c.fillStyle = '#5D4037'; c.fillRect(nx + 12, ny - 4, 2, 12);
+        c.fillStyle = '#bdc3c7'; c.fillRect(nx + 12, ny - 6, 2, 2);
       },
       'Clara': (c) => {
         const nx = 16, ny = 18;
         // Hair
-        c.fillStyle = '#1a0f0a'; c.fillRect(nx-6, ny-16, 12, 6);
-        c.fillStyle = '#1a0f0a'; c.fillRect(nx-7, ny-10, 14, 4);
+        c.fillStyle = '#1a0f0a'; c.fillRect(nx - 6, ny - 16, 12, 6);
+        c.fillStyle = '#1a0f0a'; c.fillRect(nx - 7, ny - 10, 14, 4);
         // Face
-        c.fillStyle = '#d4a574'; c.fillRect(nx-5, ny-10, 10, 8);
-        c.fillStyle = '#1a0f0a'; c.fillRect(nx-3, ny-8, 2, 2); c.fillRect(nx+1, ny-8, 2, 2);
-        c.fillStyle = '#c0392b'; c.fillRect(nx-2, ny-4, 4, 1);
+        c.fillStyle = '#d4a574'; c.fillRect(nx - 5, ny - 10, 10, 8);
+        c.fillStyle = '#1a0f0a'; c.fillRect(nx - 3, ny - 8, 2, 2); c.fillRect(nx + 1, ny - 8, 2, 2);
+        c.fillStyle = '#c0392b'; c.fillRect(nx - 2, ny - 4, 4, 1);
         // Dress (pink)
-        c.fillStyle = '#e91e63'; c.fillRect(nx-8, ny-2, 16, 14);
-        c.fillStyle = '#f48fb1'; c.fillRect(nx-6, ny-2, 12, 12);
+        c.fillStyle = '#e91e63'; c.fillRect(nx - 8, ny - 2, 16, 14);
+        c.fillStyle = '#f48fb1'; c.fillRect(nx - 6, ny - 2, 12, 12);
         // Arms
-        c.fillStyle = '#d4a574'; c.fillRect(nx-9, ny, 2, 6); c.fillRect(nx+7, ny, 2, 6);
+        c.fillStyle = '#d4a574'; c.fillRect(nx - 9, ny, 2, 6); c.fillRect(nx + 7, ny, 2, 6);
         // Skirt flare
-        c.fillStyle = '#e91e63'; c.fillRect(nx-10, ny+10, 20, 4);
-        c.fillStyle = '#f48fb1'; c.fillRect(nx-8, ny+10, 16, 3);
+        c.fillStyle = '#e91e63'; c.fillRect(nx - 10, ny + 10, 20, 4);
+        c.fillStyle = '#f48fb1'; c.fillRect(nx - 8, ny + 10, 16, 3);
         // Legs
-        c.fillStyle = '#d4a574'; c.fillRect(nx-4, ny+14, 3, 6); c.fillRect(nx+1, ny+14, 3, 6);
+        c.fillStyle = '#d4a574'; c.fillRect(nx - 4, ny + 14, 3, 6); c.fillRect(nx + 1, ny + 14, 3, 6);
         // Shoes
-        c.fillStyle = '#1a0f0a'; c.fillRect(nx-4, ny+20, 3, 3); c.fillRect(nx+1, ny+20, 3, 3);
+        c.fillStyle = '#1a0f0a'; c.fillRect(nx - 4, ny + 20, 3, 3); c.fillRect(nx + 1, ny + 20, 3, 3);
       },
       'Comandante Ruiz': (c) => {
         const nx = 16, ny = 18;
         // Hat (dark military)
-        c.fillStyle = '#1a1a2e'; c.fillRect(nx-8, ny-20, 16, 6);
-        c.fillStyle = '#e74c3c'; c.fillRect(nx-8, ny-21, 16, 2);
-        c.fillStyle = '#f1c40f'; c.fillRect(nx-10, ny-14, 20, 3);
+        c.fillStyle = '#1a1a2e'; c.fillRect(nx - 8, ny - 20, 16, 6);
+        c.fillStyle = '#e74c3c'; c.fillRect(nx - 8, ny - 21, 16, 2);
+        c.fillStyle = '#f1c40f'; c.fillRect(nx - 10, ny - 14, 20, 3);
         // Face
-        c.fillStyle = '#d4a574'; c.fillRect(nx-5, ny-11, 10, 8);
-        c.fillStyle = '#1a0f0a'; c.fillRect(nx-3, ny-9, 2, 2); c.fillRect(nx+1, ny-9, 2, 2);
+        c.fillStyle = '#d4a574'; c.fillRect(nx - 5, ny - 11, 10, 8);
+        c.fillStyle = '#1a0f0a'; c.fillRect(nx - 3, ny - 9, 2, 2); c.fillRect(nx + 1, ny - 9, 2, 2);
         // Mustache
-        c.fillStyle = '#3d3d3d'; c.fillRect(nx-4, ny-5, 8, 2);
+        c.fillStyle = '#3d3d3d'; c.fillRect(nx - 4, ny - 5, 8, 2);
         // Uniform (dark blue with red trim)
-        c.fillStyle = '#1a1a2e'; c.fillRect(nx-8, ny-3, 16, 16);
-        c.fillStyle = '#e74c3c'; c.fillRect(nx-2, ny-3, 4, 14);
+        c.fillStyle = '#1a1a2e'; c.fillRect(nx - 8, ny - 3, 16, 16);
+        c.fillStyle = '#e74c3c'; c.fillRect(nx - 2, ny - 3, 4, 14);
         // Gold buttons
-        c.fillStyle = '#f1c40f'; c.fillRect(nx-1, ny, 2, 2); c.fillRect(nx-1, ny+4, 2, 2); c.fillRect(nx-1, ny+8, 2, 2);
+        c.fillStyle = '#f1c40f'; c.fillRect(nx - 1, ny, 2, 2); c.fillRect(nx - 1, ny + 4, 2, 2); c.fillRect(nx - 1, ny + 8, 2, 2);
         // Epaulettes
-        c.fillStyle = '#f1c40f'; c.fillRect(nx-10, ny-3, 3, 3); c.fillRect(nx+7, ny-3, 3, 3);
+        c.fillStyle = '#f1c40f'; c.fillRect(nx - 10, ny - 3, 3, 3); c.fillRect(nx + 7, ny - 3, 3, 3);
         // Arms
-        c.fillStyle = '#1a1a2e'; c.fillRect(nx-10, ny, 3, 8); c.fillRect(nx+7, ny, 3, 8);
+        c.fillStyle = '#1a1a2e'; c.fillRect(nx - 10, ny, 3, 8); c.fillRect(nx + 7, ny, 3, 8);
         // Sword at side
-        c.fillStyle = '#bdc3c7'; c.fillRect(nx+10, ny-2, 2, 14);
-        c.fillStyle = '#f1c40f'; c.fillRect(nx+9, ny-2, 4, 3);
+        c.fillStyle = '#bdc3c7'; c.fillRect(nx + 10, ny - 2, 2, 14);
+        c.fillStyle = '#f1c40f'; c.fillRect(nx + 9, ny - 2, 4, 3);
         // Legs
-        c.fillStyle = '#2c3e50'; c.fillRect(nx-5, ny+13, 4, 8); c.fillRect(nx+1, ny+13, 4, 8);
+        c.fillStyle = '#2c3e50'; c.fillRect(nx - 5, ny + 13, 4, 8); c.fillRect(nx + 1, ny + 13, 4, 8);
         // Boots
-        c.fillStyle = '#1a0f0a'; c.fillRect(nx-6, ny+19, 5, 4); c.fillRect(nx+1, ny+19, 5, 4);
+        c.fillStyle = '#1a0f0a'; c.fillRect(nx - 6, ny + 19, 5, 4); c.fillRect(nx + 1, ny + 19, 5, 4);
       },
       'Fogón': (c) => {
         const cx = 20, cy = 24;
         c.fillStyle = '#5D4037'; c.beginPath(); c.ellipse(cx, cy, 18, 8, 0, 0, Math.PI * 2); c.fill();
-        c.fillStyle = '#c0392b'; c.beginPath(); c.moveTo(cx-15, cy); c.quadraticCurveTo(cx, cy-30, cx+15, cy); c.fill();
-        c.fillStyle = '#e67e22'; c.beginPath(); c.moveTo(cx-10, cy-2); c.quadraticCurveTo(cx, cy-22, cx+10, cy-2); c.fill();
-        c.fillStyle = '#f1c40f'; c.beginPath(); c.moveTo(cx-5, cy-5); c.quadraticCurveTo(cx, cy-16, cx+5, cy-5); c.fill();
+        c.fillStyle = '#c0392b'; c.beginPath(); c.moveTo(cx - 15, cy); c.quadraticCurveTo(cx, cy - 30, cx + 15, cy); c.fill();
+        c.fillStyle = '#e67e22'; c.beginPath(); c.moveTo(cx - 10, cy - 2); c.quadraticCurveTo(cx, cy - 22, cx + 10, cy - 2); c.fill();
+        c.fillStyle = '#f1c40f'; c.beginPath(); c.moveTo(cx - 5, cy - 5); c.quadraticCurveTo(cx, cy - 16, cx + 5, cy - 5); c.fill();
       },
       'Yerba': (c) => {
         c.strokeStyle = '#2E7D32'; c.lineWidth = 2; c.beginPath(); c.moveTo(12, 22); c.lineTo(12, 12); c.stroke();
-        c.fillStyle = '#27ae60'; c.beginPath(); c.ellipse(6, 12, 6, 3, Math.PI/4, 0, Math.PI*2); c.ellipse(18, 12, 6, 3, -Math.PI/4, 0, Math.PI*2); c.ellipse(12, 6, 5, 6, 0, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#27ae60'; c.beginPath(); c.ellipse(6, 12, 6, 3, Math.PI / 4, 0, Math.PI * 2); c.ellipse(18, 12, 6, 3, -Math.PI / 4, 0, Math.PI * 2); c.ellipse(12, 6, 5, 6, 0, 0, Math.PI * 2); c.fill();
       },
       'Menta': (c) => {
         c.strokeStyle = '#2E7D32'; c.lineWidth = 2; c.beginPath(); c.moveTo(12, 22); c.lineTo(12, 12); c.stroke();
-        c.fillStyle = '#3498db'; c.beginPath(); c.ellipse(6, 12, 6, 3, Math.PI/4, 0, Math.PI*2); c.ellipse(18, 12, 6, 3, -Math.PI/4, 0, Math.PI*2); c.ellipse(12, 6, 5, 6, 0, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#3498db'; c.beginPath(); c.ellipse(6, 12, 6, 3, Math.PI / 4, 0, Math.PI * 2); c.ellipse(18, 12, 6, 3, -Math.PI / 4, 0, Math.PI * 2); c.ellipse(12, 6, 5, 6, 0, 0, Math.PI * 2); c.fill();
       },
       'Arbusto': (c) => {
-        const nx = 14, ny = 16; c.fillStyle = '#8B7355'; c.fillRect(nx, ny, 3, 8); c.fillRect(nx-5, ny-4, 3, 8); c.fillRect(nx+5, ny-4, 3, 8);
+        const nx = 14, ny = 16; c.fillStyle = '#8B7355'; c.fillRect(nx, ny, 3, 8); c.fillRect(nx - 5, ny - 4, 3, 8); c.fillRect(nx + 5, ny - 4, 3, 8);
       },
       'Roca': (c) => {
-        const nx = 14, ny = 14, s = 10; c.fillStyle = '#5C4A3D'; c.fillRect(nx-s, ny-s, s * 2, s); c.fillStyle = '#3E3128'; c.fillRect(nx-s+2, ny-s+2, s * 2-4, s-2);
+        const nx = 14, ny = 14, s = 10; c.fillStyle = '#5C4A3D'; c.fillRect(nx - s, ny - s, s * 2, s); c.fillStyle = '#3E3128'; c.fillRect(nx - s + 2, ny - s + 2, s * 2 - 4, s - 2);
       }
     };
 
@@ -1636,9 +2229,11 @@
       if (e.key === 'r') setTool('rect');
       if (e.key === 'l') setTool('line');
       if (e.key === 'm') setTool('mask');
+      if (e.key === 'i' || e.key === 'x') setTool('picker');
     });
 
     init();
   </script>
 </body>
+
 </html>
