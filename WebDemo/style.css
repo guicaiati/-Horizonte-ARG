@@ -1,0 +1,51 @@
+body {
+  margin: 0;
+  font-family: 'Press Start 2P', 'Pixelion', 'Monopix', monospace;
+  background: #2c1810;
+  color: #f0e5d8;
+  overflow: hidden;
+  text-align: center;
+}
+
+h1 {
+  margin: 10px 0;
+  color: #d4a574;
+  text-shadow: 2px 2px #1a0f0a;
+  font-size: 20px;
+}
+
+#gameCanvas {
+  background: #c2b280;
+  display: block;
+  margin: 10px auto;
+  border: 6px solid #654321;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+#ui {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 8, 5, 0.9);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: 2px solid #d4a574;
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px #000;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.6);
+}
+
+#controls, #characters {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+}
+
+#controls p {
+  margin: 5px 0;
+}
