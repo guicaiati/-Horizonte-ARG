@@ -442,6 +442,8 @@
     <div class="option-group">
       <button class="btn btn-small" onclick="clearCanvas()">Limpiar</button>
       <button class="btn btn-small" onclick="exportCode()">Exportar JSON</button>
+      <button class="btn btn-small" onclick="document.getElementById('jsonInput').click()" title="Importar asset JSON a tu biblioteca">Importar JSON</button>
+      <input type="file" id="jsonInput" accept=".json" style="display:none" onchange="importLibraryJSON(this)">
       <label class="btn btn-small" for="imgInput" style="cursor:pointer; display:inline-block; margin:0;">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:middle; margin-right:4px;"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2h-14v-2z"/></svg>Subir
       </label>
@@ -700,7 +702,11 @@
           const y1 = Math.min(shapeStart.y, y);
           const w = Math.abs(shapeStart.x - x) + 1;
           const h = Math.abs(shapeStart.y - y) + 1;
-          ctx.fillRect(x1, y1, w, h);
+          // Cuadrado hueco (4 líneas)
+          ctx.fillRect(x1, y1, w, 1); // Arriba
+          ctx.fillRect(x1, y1 + h - 1, w, 1); // Abajo
+          ctx.fillRect(x1, y1, 1, h); // Izquierda
+          ctx.fillRect(x1 + w - 1, y1, 1, h); // Derecha
         } else if (currentTool === 'line') {
           drawSimpleLine(shapeStart.x, shapeStart.y, x, y);
         }
@@ -1057,6 +1063,27 @@
       }
       const blob = new Blob([JSON.stringify({ w: canvas.width, h: canvas.height, data, mask })], { type: 'application/json' });
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'asset.json'; a.click();
+    }
+
+    function importLibraryJSON(input) {
+      const file = input.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const asset = JSON.parse(e.target.result);
+          if (!asset.data || !asset.w || !asset.h) throw new Error("Formato inválido");
+          const name = prompt("Nombre para este asset importado:", file.name.replace('.json',''));
+          if (!name) return;
+          userLibrary[name] = asset;
+          localStorage.setItem('horizonte_user_library', JSON.stringify(userLibrary));
+          switchBank('user'); // Cambiar a la pestaña de usuario para ver el resultado
+          showToast(`✅ Asset "${name}" importado a la biblioteca.`);
+        } catch(err) {
+          showToast("❌ Error al importar: El archivo no es un JSON válido de Horizonte.");
+        }
+      };
+      reader.readAsText(file);
+      input.value = '';
     }
 
     function downloadImage() {
