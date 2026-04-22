@@ -987,6 +987,9 @@ function draw() {
         ctx.fillText('Presioná ENTER pa continuar >>', width - 30, height - 20);
       }
     }
+  }
+}
+
 let lastTime = 0;
 function loop(timestamp) {
   const delta = timestamp - lastTime;
