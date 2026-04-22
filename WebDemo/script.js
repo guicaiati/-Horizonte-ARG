@@ -50,29 +50,37 @@ function getUserAsset(name) {
 function splitMartinSprite(asset) {
   const body = asset.data.map(row => [...row]);
   const sword = asset.data.map(row => row.map(() => null));
-  const head = asset.data.map(row => row.map(() => null));
   const hand = asset.data.map(row => row.map(() => null));
-  const legs = asset.data.map(row => row.map(() => null));
+  const leftLeg = asset.data.map(row => row.map(() => null));
+  const rightLeg = asset.data.map(row => row.map(() => null));
+  
+  // Calcular centro X del sprite para separar piernas
+  const centerX = Math.floor(asset.w / 2);
+  // Detectar fila más alta con píxeles de máscara 4 (piernas) para saber dónde empieza el cuerpo superior
+  let headEndRow = Math.floor(asset.h * 0.4); // Por defecto: 40% superior es cabeza
   
   asset.data.forEach((row, y) => {
     row.forEach((color, x) => {
       const m = asset.mask ? (asset.mask[y] ? asset.mask[y][x] : 0) : 0;
-      if (m === 1) { // Espada
+      if (m === 1) { // Espada — separar del cuerpo
         sword[y][x] = color;
         body[y][x] = null;
-      } else if (m === 2) { // Mano
+      } else if (m === 2) { // Mano — separar del cuerpo
         hand[y][x] = color;
         body[y][x] = null;
-      } else if (m === 3) { // Cabeza
-        head[y][x] = color;
-        body[y][x] = null;
-      } else if (m === 4) { // Piernas
-        legs[y][x] = color;
+      } else if (m === 3) { // Cabeza — MANTENER en body para evitar huecos
+        // No se extrae; el balanceo se hace por clip de filas en el render
+      } else if (m === 4) { // Piernas — separar izq/der por posición X
+        if (x < centerX) {
+          leftLeg[y][x] = color;
+        } else {
+          rightLeg[y][x] = color;
+        }
         body[y][x] = null;
       }
     });
   });
-  return { body, sword, head, hand, legs };
+  return { body, sword, hand, leftLeg, rightLeg, headEndRow };
 }
 
 function drawPixelSprite(ctx, data, x, y, scale = 1, w, h) {
@@ -964,22 +972,42 @@ function draw() {
 
     const headOscillation = Math.sin(Date.now() / 400) * 1.5;
 
-    // DIBUJAR CUERPO (Base)
+    // DIBUJAR CUERPO (Base) + CABEZA animada por clip de filas
     ctx.save();
     ctx.translate(px, py - bobbing);
+    
+    // Parte inferior del cuerpo (sin balanceo)
+    const headRows = userMartin.split.headEndRow;
+    const spriteScale = 1;
+    const startX = px - (userMartin.w * spriteScale) / 2 - px; // relativo al translate
+    const bodyTopY = 8 - userMartin.h * spriteScale; // relativo al translate
+    
+    // Dibujar cuerpo completo primero
     drawPixelSprite(ctx, userMartin.split.body, 0, 8, 1, userMartin.w, userMartin.h);
     
-    // DIBUJAR CABEZA (Con leve balanceo)
+    // Re-dibujar solo las filas de la cabeza con leve balanceo usando clip
     ctx.save();
+    const clipTop = bodyTopY;
+    const clipH = headRows * spriteScale;
+    ctx.rect(-(userMartin.w / 2), clipTop, userMartin.w, clipH);
+    ctx.clip();
     ctx.translate(0, headOscillation);
-    drawPixelSprite(ctx, userMartin.split.head, 0, 8, 1, userMartin.w, userMartin.h);
+    drawPixelSprite(ctx, userMartin.split.body, 0, 8, 1, userMartin.w, userMartin.h);
     ctx.restore();
     
-    // DIBUJAR PIERNAS (Animación de pasos)
+    // DIBUJAR PIERNAS (Cada una independiente, fases opuestas)
+    const legPhase = Date.now() / 120;
+    const leftSwing = isMoving ? Math.sin(legPhase) * 3 : 0;
+    const rightSwing = isMoving ? Math.sin(legPhase + Math.PI) * 3 : 0;
+    
     ctx.save();
-    const legSwing = isMoving ? Math.sin(Date.now() / 100) * 4 : 0;
-    ctx.translate(0, legSwing);
-    drawPixelSprite(ctx, userMartin.split.legs, 0, 8, 1, userMartin.w, userMartin.h);
+    ctx.translate(0, leftSwing);
+    drawPixelSprite(ctx, userMartin.split.leftLeg, 0, 8, 1, userMartin.w, userMartin.h);
+    ctx.restore();
+    
+    ctx.save();
+    ctx.translate(0, rightSwing);
+    drawPixelSprite(ctx, userMartin.split.rightLeg, 0, 8, 1, userMartin.w, userMartin.h);
     ctx.restore();
     
     // DIBUJAR MANO
