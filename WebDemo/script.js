@@ -684,7 +684,18 @@ function draw() {
       ctx.fillRect(d.x + 20, d.y - 20, d.width - 40, d.height + 40);
     } else if (d.type === 'tallGrass') {
       ctx.fillStyle = '#5A7156'; // Verde desaturado oscuro
-      const sway = Math.sin(Date.now() / 300 + d.x) * 3; // Oscilación por viento
+      
+      const distToPlayer = distance(player, d);
+      let speedFactor = 1000;
+      let amplitudeFactor = 1.5;
+      
+      // Si el jugador está cerca, se mueven brusco
+      if (distToPlayer < 40) {
+        speedFactor = 150;
+        amplitudeFactor = 5;
+      }
+      
+      const sway = Math.sin(Date.now() / speedFactor + d.x) * amplitudeFactor;
       for (let g = 0; g < 4; g++) {
         const height = 15 + (g % 3) * 5;
         ctx.fillRect(d.x + g * 5 + sway * (g % 2 ? 1 : 0.5), d.y - (g % 2) * 4, 3, height);
