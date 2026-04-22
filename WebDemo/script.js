@@ -35,7 +35,7 @@ function drawControlsPanel() {
   ctx.fillRect(0, 0, 700, 400);
   ctx.strokeStyle = '#d4a574';
   ctx.lineWidth = 5;
-  
+
   ctx.fillStyle = '#d4a574';
   ctx.font = "bold 28px 'Press Start 2P', 'Pixelion', 'Monopix', monospace";
   ctx.textAlign = 'center';
@@ -70,30 +70,30 @@ function drawCharactersPanel() {
   ctx.fillRect(0, 0, 750, 550);
   ctx.strokeStyle = '#d4a574';
   ctx.lineWidth = 5;
-  
-  
+
+
   ctx.fillStyle = '#d4a574';
   ctx.font = "bold 32px 'Press Start 2P', 'Pixelion', 'Monopix', monospace";
   ctx.textAlign = 'center';
   ctx.fillText('PERSONAJES', 375, 55);
-  
+
   CHARACTERS.forEach((char, i) => {
     const y = 100 + i * 110;
     const px = 80;
     const py = y + 10;
-    
+
     ctx.save();
     ctx.translate(px, py);
     ctx.scale(1.5, 1.5); // Escalar al 150% para el retrato
-    
+
     if (char.name === "MARTÍN") {
       // Sombrero
-      ctx.fillStyle = '#3d3d3d'; ctx.fillRect(-10, -20, 20, 4); ctx.fillRect(-14, -16, 28, 4); 
+      ctx.fillStyle = '#3d3d3d'; ctx.fillRect(-10, -20, 20, 4); ctx.fillRect(-14, -16, 28, 4);
       // Cara
-      ctx.fillStyle = '#d4a574'; ctx.fillRect(-6, -12, 12, 8); 
+      ctx.fillStyle = '#d4a574'; ctx.fillRect(-6, -12, 12, 8);
       ctx.fillStyle = '#1a0f0a'; ctx.fillRect(-6, -4, 12, 4);
       // Poncho
-      ctx.fillStyle = '#8B0000'; ctx.fillRect(-10, 0, 20, 16); 
+      ctx.fillStyle = '#8B0000'; ctx.fillRect(-10, 0, 20, 16);
       ctx.fillStyle = '#c0392b'; ctx.fillRect(-6, 0, 12, 16);
       // Piernas y botas
       ctx.fillStyle = '#2c3e50'; ctx.fillRect(-8, 16, 6, 8); ctx.fillRect(2, 16, 6, 8);
@@ -102,7 +102,7 @@ function drawCharactersPanel() {
       ctx.fillStyle = '#d4a574'; ctx.fillRect(10, 4, 4, 4);
       ctx.fillStyle = '#bdc3c7'; ctx.fillRect(14, -4, 2, 10);
       ctx.fillStyle = '#7f8c8d'; ctx.fillRect(13, 6, 4, 4);
-    } 
+    }
     else if (char.name === "CLARA") {
       // Pelo
       ctx.fillStyle = '#1a0f0a'; ctx.fillRect(-8, -14, 16, 20);
@@ -152,7 +152,7 @@ function drawCharactersPanel() {
     ctx.font = "12px 'Press Start 2P', 'Pixelion', 'Monopix', monospace";
     ctx.fillText(char.description, 130, y + 80);
   });
-  
+
   ctx.fillStyle = '#888';
   ctx.font = "14px 'Press Start 2P', 'Pixelion', 'Monopix', monospace";
   ctx.textAlign = 'center';
@@ -208,12 +208,27 @@ let worldDetails = [];
 
 function initWorld() {
   worldDetails = [];
-  for (let i = 0; i < 80; i++) {
+  // Generar parches de arena
+  for (let i = 0; i < 40; i++) {
     worldDetails.push({
       x: Math.random() * WORLD_WIDTH,
       y: Math.random() * WORLD_HEIGHT,
-      size: Math.random() * 15 + 5,
-      type: Math.random() < 0.3 ? 'tree' : (Math.random() < 0.5 ? 'rock' : 'grass')
+      width: Math.random() * 200 + 100,
+      height: Math.random() * 150 + 80,
+      type: 'patch'
+    });
+  }
+  // Generar pastizales, arbustos secos y rocas
+  for (let i = 0; i < 250; i++) {
+    const r = Math.random();
+    let type = 'tallGrass';
+    if (r > 0.7) type = 'bush';
+    if (r > 0.9) type = 'rock';
+    worldDetails.push({
+      x: Math.random() * WORLD_WIDTH,
+      y: Math.random() * WORLD_HEIGHT,
+      size: Math.random() * 8 + 4,
+      type: type
     });
   }
 }
@@ -243,23 +258,23 @@ const keys = {};
 window.addEventListener('keydown', e => {
   keys[e.key] = true;
   if (canContinue && e.key === 'Enter') nextDialogue();
-if (e.key === 'c' || e.key === 'C') {
-      cPressed = true;
+  if (e.key === 'c' || e.key === 'C') {
+    cPressed = true;
+  }
+  if (e.key === 'p' || e.key === 'P') {
+    pPressed = true;
+  }
+  if (e.key === 'h' || e.key === 'H') {
+    // Skip story - ir directamente al juego
+    if (gameState === STORY_STATE.DIALOGUE || gameState === STORY_STATE.INTRO) {
+      gameState = STORY_STATE.GAMEPLAY;
+      document.getElementById('ui').style.display = 'block';
+      showControls = false;
+      showCharacters = false;
+      document.getElementById('controls').style.display = 'none';
+      document.getElementById('characters').style.display = 'none';
     }
-    if (e.key === 'p' || e.key === 'P') {
-      pPressed = true;
-    }
-    if (e.key === 'h' || e.key === 'H') {
-      // Skip story - ir directamente al juego
-      if (gameState === STORY_STATE.DIALOGUE || gameState === STORY_STATE.INTRO) {
-        gameState = STORY_STATE.GAMEPLAY;
-        document.getElementById('ui').style.display = 'block';
-        showControls = false;
-        showCharacters = false;
-        document.getElementById('controls').style.display = 'none';
-        document.getElementById('characters').style.display = 'none';
-      }
-    }
+  }
 });
 window.addEventListener('keyup', e => { keys[e.key] = false; });
 
@@ -420,9 +435,9 @@ function update(delta) {
       const dirX = player.x - e.x;
       const dirY = player.y - e.y;
       const dLen = Math.hypot(dirX, dirY);
-      if (dLen > 0) { 
-        e.x += (dirX / dLen) * e.speed; 
-        e.y += (dirY / dLen) * e.speed; 
+      if (dLen > 0) {
+        e.x += (dirX / dLen) * e.speed;
+        e.y += (dirY / dLen) * e.speed;
         e.isMoving = true;
       }
     }
@@ -524,7 +539,7 @@ function draw() {
     introGrad.addColorStop(1, '#2c3e50'); // Noche pampa
     ctx.fillStyle = introGrad;
     ctx.fillRect(0, 0, width, height);
-    
+
     // Silueta de pastos más detallada
     ctx.fillStyle = '#1a0f0a';
     ctx.beginPath();
@@ -544,7 +559,7 @@ function draw() {
     ctx.font = "bold 32px 'Press Start 2P', 'Pixelion', 'Monopix', monospace";
     ctx.fillText('GAUCHO REVANCHA', width / 2, 160);
     ctx.shadowBlur = 0; // reset
-    
+
     // Separador degradado (centrado dinámico)
     const sepWidth = 400;
     const sepX = (width - sepWidth) / 2;
@@ -555,7 +570,7 @@ function draw() {
     sepGrad.addColorStop(1, 'rgba(212, 165, 116, 0)');
     ctx.fillStyle = sepGrad;
     ctx.fillRect(sepX, 190, sepWidth, 2);
-    
+
     // Textos de subtítulo
     ctx.fillStyle = '#f0e5d8';
     ctx.shadowColor = 'rgba(0,0,0,0.8)';
@@ -574,11 +589,11 @@ function draw() {
     ctx.shadowColor = '#000';
     ctx.shadowBlur = 5;
     ctx.fillText('▶ Presioná ENTER pa empezar ◀', width / 2, 400);
-    
+
     ctx.fillStyle = '#dcdde1';
     ctx.font = "18px 'Press Start 2P', 'Pixelion', 'Monopix', monospace";
     ctx.fillText('[C] Ver Controles   |   [P] Ver Personajes', width / 2, 460);
-    
+
     ctx.fillStyle = '#7f8fa6';
     ctx.font = "16px 'Press Start 2P', 'Pixelion', 'Monopix', monospace";
     ctx.fillText('[H] Saltear Historia', width / 2, 510);
@@ -629,7 +644,7 @@ function draw() {
       document.getElementById('controls').style.display = 'none';
     }
   }
-  
+
   if (pPressed) {
     pPressed = false;
     showCharacters = !showCharacters;
@@ -648,13 +663,8 @@ function draw() {
   ctx.save();
   ctx.translate(-camera.x + width / 2, -camera.y + height / 2);
 
-  // Fondo con gradiente de la Pampa (visto desde arriba)
-  const bgGrad = ctx.createLinearGradient(0, 0, 0, WORLD_HEIGHT);
-  bgGrad.addColorStop(0, '#A3C68C'); // Verde pasto claro
-  bgGrad.addColorStop(0.4, '#C2B280'); // Tonos tierra pampa
-  bgGrad.addColorStop(0.8, '#8B7355'); // Tierra oscura
-  bgGrad.addColorStop(1, '#5D4037'); // Tierra profunda
-  ctx.fillStyle = bgGrad;
+  // Fondo base arena/tierra (estilo pixel art)
+  ctx.fillStyle = '#C4A47C'; // Color arena oscuro
   ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
 
   // Sombra suave en los bordes del mundo
@@ -662,40 +672,47 @@ function draw() {
   ctx.lineWidth = 20;
   ctx.strokeRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
 
-  // Detalles del mundo
+  // Detalles del mundo (pixel art)
   worldDetails.forEach(d => {
     if (d.x < camera.x - 300 || d.x > camera.x + width + 300) return;
     if (d.y < camera.y - 300 || d.y > camera.y + height + 300) return;
 
-    if (d.type === 'tree') {
-      ctx.fillStyle = '#5D4037';
-      ctx.fillRect(d.x - 4, d.y - 10, 8, 25);
-      ctx.fillStyle = '#2E7D32';
-      ctx.beginPath();
-      ctx.arc(d.x, d.y - 20, d.size, 0, Math.PI * 2);
-      ctx.fill();
+    if (d.type === 'patch') {
+      ctx.fillStyle = '#D4B88E'; // Tono arena más claro/irregular
+      ctx.fillRect(d.x, d.y, d.width, d.height);
+      ctx.fillRect(d.x - 20, d.y + 20, d.width + 40, d.height - 40);
+      ctx.fillRect(d.x + 20, d.y - 20, d.width - 40, d.height + 40);
+    } else if (d.type === 'tallGrass') {
+      ctx.fillStyle = '#5A7156'; // Verde desaturado oscuro
+      const sway = Math.sin(Date.now() / 300 + d.x) * 3; // Oscilación por viento
+      for (let g = 0; g < 4; g++) {
+        const height = 15 + (g % 3) * 5;
+        ctx.fillRect(d.x + g * 5 + sway * (g % 2 ? 1 : 0.5), d.y - (g % 2) * 4, 3, height);
+      }
+    } else if (d.type === 'bush') {
+      ctx.fillStyle = '#8B7355'; // Arbusto seco (marrón)
+      ctx.fillRect(d.x, d.y, 3, 8);
+      ctx.fillRect(d.x - 5, d.y - 4, 3, 8);
+      ctx.fillRect(d.x + 5, d.y - 4, 3, 8);
     } else if (d.type === 'rock') {
-      ctx.fillStyle = '#6B5B4F';
-      ctx.beginPath();
-      ctx.ellipse(d.x, d.y, d.size, d.size * 0.6, 0, 0, Math.PI * 2);
-      ctx.fill();
-    } else {
-      ctx.fillStyle = '#5D7A3D';
-      ctx.fillRect(d.x, d.y - d.size / 2, 2, d.size);
-      ctx.fillRect(d.x + 4, d.y - d.size / 2 + 2, 2, d.size - 4);
+      ctx.fillStyle = '#5C4A3D'; // Roca base oscura
+      ctx.fillRect(d.x, d.y - d.size, d.size * 2, d.size);
+      ctx.fillStyle = '#3E3128'; // Sombra / relieve
+      ctx.fillRect(d.x + 2, d.y - d.size + 2, d.size * 2 - 4, d.size - 2);
     }
   });
 
-  // Hierbas (yuyos)
+  // Hierbas (yuyos) animadas
   herbs.forEach(h => {
     const color = HERB_TYPES[h.type].color;
-    
+    const sway = Math.sin(Date.now() / 250 + h.x) * 4; // Viento
+
     // Tallo principal
-    ctx.strokeStyle = '#2E7D32'; 
+    ctx.strokeStyle = '#2E7D32';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(h.x, h.y + h.radius);
-    ctx.lineTo(h.x, h.y - h.radius + 4);
+    ctx.lineTo(h.x + sway / 2, h.y - h.radius + 4);
     ctx.stroke();
 
     // Hojas y cabeza del yuyo
@@ -705,8 +722,8 @@ function draw() {
     ctx.ellipse(h.x - 6, h.y, 6, 3, Math.PI / 4, 0, Math.PI * 2);
     // hoja derecha
     ctx.ellipse(h.x + 6, h.y, 6, 3, -Math.PI / 4, 0, Math.PI * 2);
-    // capullo superior
-    ctx.ellipse(h.x, h.y - 6, 5, 6, 0, 0, Math.PI * 2);
+    // capullo superior oscilante
+    ctx.ellipse(h.x + sway, h.y - 6, 5, 6, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // Borde brillante para contraste
@@ -715,21 +732,51 @@ function draw() {
     ctx.stroke();
   });
 
-  // Fogón
-  ctx.fillStyle = '#e74c3c';
+  // Fogón Animado (Triangular/Flama)
+  const time = Date.now();
+  const flicker = Math.sin(time / 150) * 3 + Math.cos(time / 200) * 2;
+
+  // Base de leños
+  ctx.fillStyle = '#5D4037';
   ctx.beginPath();
-  ctx.arc(campfire.x, campfire.y, campfire.radius, 0, Math.PI * 2);
+  ctx.ellipse(campfire.x, campfire.y, 18, 8, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = '#f39c12';
+
+  // Fuego forma triangular/oval - rojo (base)
+  ctx.fillStyle = '#c0392b';
   ctx.beginPath();
-  ctx.arc(campfire.x, campfire.y, campfire.radius * 0.6, 0, Math.PI * 2);
+  ctx.moveTo(campfire.x - 15, campfire.y);
+  ctx.quadraticCurveTo(campfire.x - 10, campfire.y - 15, campfire.x, campfire.y - 25 + flicker);
+  ctx.quadraticCurveTo(campfire.x + 10, campfire.y - 15, campfire.x + 15, campfire.y);
+  ctx.fill();
+
+  // Fuego naranja (medio)
+  ctx.fillStyle = '#e67e22';
+  ctx.beginPath();
+  ctx.moveTo(campfire.x - 10, campfire.y - 2);
+  ctx.quadraticCurveTo(campfire.x - 6, campfire.y - 12, campfire.x, campfire.y - 20 + flicker);
+  ctx.quadraticCurveTo(campfire.x + 6, campfire.y - 12, campfire.x + 10, campfire.y - 2);
+  ctx.fill();
+
+  // Fuego amarillo (punta)
+  ctx.fillStyle = '#f1c40f';
+  ctx.beginPath();
+  ctx.moveTo(campfire.x - 5, campfire.y - 5);
+  ctx.quadraticCurveTo(campfire.x, campfire.y - 15, campfire.x, campfire.y - 18 + flicker);
+  ctx.quadraticCurveTo(campfire.x, campfire.y - 15, campfire.x + 5, campfire.y - 5);
   ctx.fill();
 
   // Enemigos (Realistas Pixel Art)
   enemies.forEach(e => {
     const ex = e.x;
     const ey = e.y;
-    
+
+    // Sombra pixelada bajo los pies
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+    ctx.fillRect(ex - 12, ey + 10, 8, 3);
+    ctx.fillRect(ex - 4, ey + 12, 10, 3);
+    ctx.fillRect(ex + 6, ey + 10, 6, 3);
+
     // Sombrero Shako (Alto y cilíndrico)
     ctx.fillStyle = '#1a1a2e'; // Azul muy oscuro/negro
     ctx.fillRect(ex - 8, ey - 22, 16, 10); // Parte alta
@@ -821,21 +868,16 @@ function draw() {
     }
   });
 
-  // Sombras de personajes para mejor contraste
-  ctx.fillStyle = 'rgba(0,0,0,0.3)';
-  ctx.beginPath();
-  ctx.ellipse(player.x, player.y + 15, 18, 8, 0, 0, Math.PI * 2);
-  ctx.fill();
-  enemies.forEach(e => {
-    ctx.beginPath();
-    ctx.ellipse(e.x, e.y + 12, 15, 6, 0, 0, Math.PI * 2);
-    ctx.fill();
-  });
-
   // Jugador (Gaucho Pixel Art)
   const px = player.x;
   const py = player.y;
-  
+
+  // Sombra pixelada bajo los pies
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+  ctx.fillRect(px - 14, py + 22, 8, 4);
+  ctx.fillRect(px - 6, py + 24, 12, 4);
+  ctx.fillRect(px + 4, py + 22, 8, 4);
+
   // Sombrero (Marrón oscuro)
   ctx.fillStyle = '#3d3d3d';
   ctx.fillRect(px - 10, py - 20, 20, 4); // Copa
@@ -845,11 +887,11 @@ function draw() {
   ctx.fillStyle = '#d4a574'; // Piel
   ctx.fillRect(px - 6, py - 12, 12, 8); // Cara
   ctx.fillStyle = '#1a0f0a'; // Barba
-  ctx.fillRect(px - 6, py - 4, 12, 4); 
+  ctx.fillRect(px - 6, py - 4, 12, 4);
 
   // Torso y Poncho (Rojo/bordo)
   ctx.fillStyle = '#8B0000';
-  ctx.fillRect(px - 10, py, 20, 16); 
+  ctx.fillRect(px - 10, py, 20, 16);
   // Detalles poncho
   ctx.fillStyle = '#c0392b';
   ctx.fillRect(px - 6, py, 12, 16);
@@ -880,14 +922,14 @@ function draw() {
     ctx.rotate(angle);
     ctx.translate(-(px + 12), -(py + 6));
   }
-  
+
   ctx.fillStyle = '#d4a574'; // Mano
   ctx.fillRect(px + 10, py + 4, 4, 4);
   ctx.fillStyle = '#bdc3c7'; // Hoja del facón
   ctx.fillRect(px + 14, py - 4, 2, 10);
   ctx.fillStyle = '#7f8c8d'; // Mango
   ctx.fillRect(px + 13, py + 6, 4, 4);
-  
+
   ctx.restore();
 
   if (player.knockback.time > 0) {
