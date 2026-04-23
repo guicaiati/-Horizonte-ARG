@@ -1066,12 +1066,6 @@
           <path d="M13 5h-2v14h2V5z" transform="rotate(45 12 12)" />
         </svg>
       </button>
-      <button class="tool-btn" onclick="setTool('select')" id="btn-select" title="Seleccionar y Mover (S)" aria-label="Seleccionar"
-        aria-pressed="false">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M3 5h2v2H3V5zm0 4h2v2H3V9zm0 4h2v2H3v-2zm0 4h2v2H3v-2zm0-8h14v2H3V9zm16-4h2v2h-2V5zm-4 0h2v2h-2V5zm0 4h2v2h-2V9zm-4 0h2v2h-2V9zm-4 0h2v2H7V9zm0 4h2v2H7v-2zm0 4h2v2H7v-2z"/>
-        </svg>
-      </button>
 
       <div class="toolbar-divider" role="separator"></div>
 
@@ -1415,12 +1409,6 @@
     let redoHistory = [];
     let MAX_HISTORY = 50;
 
-    let selection = null;
-    let isDragging = false;
-    let dragStartX = 0, dragStartY = 0;
-    let selectionPixels = null;
-    let selectionW = 0, selectionH = 0;
-
     const cursorPreview = document.getElementById('cursorPreview');
     const drawingContainer = document.querySelector('.drawing-container');
     const pixelCanvas = document.getElementById('pixelCanvas');
@@ -1554,24 +1542,13 @@ function startDraw(e) {
       const { x, y } = getCanvasCoords(e);
       if (e.ctrlKey || currentTool === 'picker') { pickColor(x, y); return; }
       isDrawing = true;
-      lastX = e.clientX;
-      lastY = e.clientY;
-      
-      if (currentTool === 'fill') {
-        pushHistory();
-        floodFill(x, y);
-        isDrawing = false;
-      } else if (currentTool === 'rect' || currentTool === 'line') {
-        pushHistory();
+      lastX = x; lastY = y;
+      pushHistory();
+      if (currentTool === 'fill') floodFill(x, y);
+      else if (currentTool === 'rect' || currentTool === 'line') {
         snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
         shapeStart = { x, y };
-      } else if (currentTool === 'select') {
-        pushHistory();
-        isDragging = true;
-      } else {
-        pushHistory();
-        drawPixel(x, y);
-      }
+      } else drawPixel(x, y);
     }
 
     function draw(e) {
@@ -1605,45 +1582,14 @@ function startDraw(e) {
         } else if (currentTool === 'line') {
           drawSimpleLine(shapeStart.x, shapeStart.y, x, y);
         }
-      } else if (currentTool === 'select' && isDragging) {
-        const dx = e.clientX - lastX;
-        const dy = e.clientY - lastY;
-        
-        if (dx !== 0) {
-          const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.putImageData(img, dx, dy);
-          lastX = e.clientX;
-        }
-        if (dy !== 0) {
-          const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.putImageData(img, 0, dy);
-          lastY = e.clientY;
-        }
-        
-        if (dx !== 0 || dy !== 0) {
-          updatePreview();
-        }
       }
     }
 
     function stopDraw() {
       isDrawing = false;
-      isDragging = false;
-      shapeStart = null;
+shapeStart = null;
+      snapshot = null;
       updatePreview();
-    }
-
-    function clearSelection() {
-      if (selection) {
-        ctx.putImageData(snapshot, 0, 0);
-        selection = null;
-        isDragging = false;
-        selectionPixels = null;
-        snapshot = null;
-        updatePreview();
-      }
     }
 
     function draw(e) {
@@ -2658,8 +2604,6 @@ function startDraw(e) {
       if (e.key === 'l') setTool('line');
       if (e.key === 'm') setTool('mask');
       if (e.key === 'i' || e.key === 'x') setTool('picker');
-      if (e.key === 's') setTool('select');
-      if (e.key === 'Escape' && selection) clearSelection();
     });
 
     init();
