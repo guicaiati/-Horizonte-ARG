@@ -1430,17 +1430,14 @@
       document.getElementById('toggleRefBtn').innerHTML = refVisible ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:middle; margin-right:4px;"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>Referencia: ON' : '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:middle; margin-right:4px;"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>Referencia: OFF';
     };
 
-    function updateCursorPreview(e) {
+function updateCursorPreview(e) {
       const zoom = parseInt(document.getElementById('zoomRange').value);
-      const size = brushSize * zoom;
+      const size = brushSize;
 
-      const gridX = Math.floor(e.offsetX / zoom) * zoom;
-      const gridY = Math.floor(e.offsetY / zoom) * zoom;
-
-      cursorPreview.style.width = size + 'px';
-      cursorPreview.style.height = size + 'px';
-      cursorPreview.style.left = gridX + 'px';
-      cursorPreview.style.top = gridY + 'px';
+      cursorPreview.style.width = (size * zoom / 2) + 'px';
+      cursorPreview.style.height = (size * zoom / 2) + 'px';
+      cursorPreview.style.left = e.offsetX + 'px';
+      cursorPreview.style.top = e.offsetY + 'px';
       
       if (currentTool === 'picker') {
         cursorPreview.style.display = 'block';
@@ -1462,17 +1459,13 @@
         cursorPreview.style.background = 'rgba(52, 152, 219, 0.5)';
         cursorPreview.style.border = '1px solid rgba(255,255,255,0.8)';
         cursorPreview.style.boxShadow = 'none';
-      } else if (currentTool === 'select') {
-        cursorPreview.style.display = 'block';
-        cursorPreview.style.background = 'transparent';
-        cursorPreview.style.border = '2px dashed #0075ff';
-        cursorPreview.style.boxShadow = 'none';
       } else {
         cursorPreview.style.display = 'block';
         cursorPreview.style.background = currentColor;
         cursorPreview.style.border = '1px solid rgba(0,0,0,0.5)';
         cursorPreview.style.boxShadow = 'none';
       }
+    }
     }
 
     pixelCanvas.addEventListener('mousemove', updateCursorPreview);
