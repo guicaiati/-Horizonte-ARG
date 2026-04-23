@@ -996,6 +996,7 @@
         <option value="5">5 - Especial (Rosa)</option>
         <option value="0">0 - Borrar Capa</option>
       </select>
+      <button id="autoDetectBtn" style="margin-left:10px; font-size:11px; background:#1a0f0a; color:#d4a574; border:1px solid #3d2b1f; cursor:pointer; padding:3px 8px;">Auto detectar</button>
     </div>
 
     <div style="width: 1px; height: 16px; background: #3d2b1f;"></div>
@@ -1720,6 +1721,108 @@ shapeStart = null;
         y: Math.floor((e.clientY - rect.top) * (canvas.height / rect.height))
       };
     }
+
+    const PART_NAMES = {
+  head: 3,
+  torso: 2,
+  arm_left: 2,
+  arm_right: 2,
+  leg_left: 4,
+  leg_right: 4,
+  weapon: 1
+}
+
+function extractRegions(sprite) {
+  const regions = {}
+  for (let y = 0; y < sprite.h; y++) {
+    for (let x = 0; x < sprite.w; x++) {
+      const id = animationMask[y] ? animationMask[y][x] : 0
+      if (id === 0) continue
+      if (!regions[id]) regions[id] = []
+      regions[id].push({ x, y })
+    }
+  }
+  return regions
+}
+
+function analyzeRegion(pixels) {
+  let minX = Infinity, maxX = -Infinity
+  let minY = Infinity, maxY = -Infinity
+  pixels.forEach(p => {
+    if (p.x < minX) minX = p.x
+    if (p.x > maxX) maxX = p.x
+    if (p.y < minY) minY = p.y
+    if (p.y > maxY) maxY = p.y
+  })
+  return {
+    centerX: (minX + maxX) / 2,
+    centerY: (minY + maxY) / 2,
+    width: maxX - minX,
+    height: maxY - minY,
+    size: pixels.length
+  }
+}
+
+function autoDetect() {
+  const regions = extractRegions({ w: canvas.width, h: canvas.height })
+  const result = {}
+  const centerX = canvas.width / 2
+  
+  Object.entries(regions).forEach(([id, pixels]) => {
+    const r = analyzeRegion(pixels)
+    let part = "torso"
+    if (r.centerY < canvas.height * 0.3) part = "head"
+    else if (r.centerY > canvas.height * 0.65) {
+      part = r.centerX < centerX ? "leg_left" : "leg_right"
+    }
+    else if (r.centerX < centerX * 0.7) part = "arm_left"
+    else if (r.centerX > centerX * 1.3) part = "arm_right"
+    result[id] = part
+  })
+  return result
+}
+
+const DEBUG_COLORS = {
+  head: "rgba(255,0,0,0.4)",
+  torso: "rgba(0,0,255,0.4)",
+  arm_left: "rgba(0,255,0,0.4)",
+  arm_right: "rgba(255,255,0,0.4)",
+  leg_left: "rgba(128,0,128,0.4)",
+  leg_right: "rgba(255,165,0,0.4)"
+}
+
+function previewDetection(mapping) {
+  for (let y = 0; y < canvas.height; y++) {
+    for (let x = 0; x < canvas.width; x++) {
+      const id = animationMask[y] ? animationMask[y][x] : 0
+      if (!mapping[id]) continue
+      const part = mapping[id]
+      overCtx.fillStyle = DEBUG_COLORS[part] || "rgba(255,255,255,0.2)"
+      overCtx.fillRect(x, y, 1, 1)
+    }
+  }
+}
+
+function applyMapping(mapping) {
+  for (let y = 0; y < canvas.height; y++) {
+    for (let x = 0; x < canvas.width; x++) {
+      const id = animationMask[y] ? animationMask[y][x] : 0
+      if (!mapping[id]) continue
+      const part = mapping[id]
+      animationMask[y][x] = PART_NAMES[part] || id
+    }
+  }
+  renderMaskOverlay()
+}
+
+document.getElementById("autoDetectBtn")?.addEventListener("click", () => {
+  const mapping = autoDetect()
+  previewDetection(mapping)
+  if (confirm("¿Aplicar detección automática?")) {
+    applyMapping(mapping)
+    showToast("Detección automática aplicada")
+  }
+})
 
     function setTool(tool) {
       currentTool = tool;
