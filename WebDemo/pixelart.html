@@ -1066,6 +1066,12 @@
           <path d="M13 5h-2v14h2V5z" transform="rotate(45 12 12)" />
         </svg>
       </button>
+      <button class="tool-btn" onclick="setTool('select')" id="btn-select" title="Seleccionar y Mover (S)" aria-label="Seleccionar"
+        aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3 5h2v2H3V5zm0 4h2v2H3V9zm0 4h2v2H3v-2zm0 4h2v2H3v-2zm0-8h14v2H3V9zm16-4h2v2h-2V5zm-4 0h2v2h-2V5zm0 4h2v2h-2V9zm-4 0h2v2h-2V9zm-4 0h2v2H7V9zm0 4h2v2H7v-2zm0 4h2v2H7v-2z"/>
+        </svg>
+      </button>
 
       <div class="toolbar-divider" role="separator"></div>
 
@@ -1409,6 +1415,10 @@
     let redoHistory = [];
     let MAX_HISTORY = 50;
 
+    let selection = null;
+    let isDragging = false;
+    let dragStartX, dragStartY;
+
     const cursorPreview = document.getElementById('cursorPreview');
     const drawingContainer = document.querySelector('.drawing-container');
     const pixelCanvas = document.getElementById('pixelCanvas');
@@ -1462,6 +1472,11 @@
         cursorPreview.style.background = 'rgba(52, 152, 219, 0.5)';
         cursorPreview.style.border = '1px solid rgba(255,255,255,0.8)';
         cursorPreview.style.boxShadow = 'none';
+      } else if (currentTool === 'select') {
+        cursorPreview.style.display = 'block';
+        cursorPreview.style.background = 'transparent';
+        cursorPreview.style.border = '2px dashed #0075ff';
+        cursorPreview.style.boxShadow = 'none';
       } else {
         cursorPreview.style.display = 'block';
         cursorPreview.style.background = currentColor;
@@ -1470,7 +1485,17 @@
       }
     }
 
-    pixelCanvas.addEventListener('mousemove', updateCursorPreview);
+    pixelCanvas.addEventListener('mousemove', (e) => {
+      updateCursorPreview(e);
+      if (currentTool === 'select' && isDragging && isDrawing) {
+        const { x, y } = getCanvasCoords(e);
+        const dx = x - dragStartX;
+        const dy = y - dragStartY;
+        moveSelection(dx, dy);
+        dragStartX = x;
+        dragStartY = y;
+      }
+    });
     pixelCanvas.addEventListener('mouseenter', (e) => {
       cursorPreview.style.display = 'block';
       updateCursorPreview(e);
@@ -1533,7 +1558,7 @@
       }
     }
 
-    function startDraw(e) {
+function startDraw(e) {
       const { x, y } = getCanvasCoords(e);
       if (e.ctrlKey || currentTool === 'picker') { pickColor(x, y); return; }
       isDrawing = true;
@@ -1543,7 +1568,134 @@
       else if (currentTool === 'rect' || currentTool === 'line') {
         snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
         shapeStart = { x, y };
+      } else if (currentTool === 'select') {
+        selection = { x1: x, y1: y, x2: x, y2: y };
+        snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
       } else drawPixel(x, y);
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      const { x, y } = getCanvasCoords(e);
+
+      if (currentTool === 'pencil' || currentTool === 'eraser' || currentTool === 'mask') {
+        drawPixel(x, y);
+      } else if (currentTool === 'rect' || currentTool === 'line') {
+        ctx.putImageData(snapshot, 0, 0);
+        ctx.fillStyle = currentColor;
+        const size = brushSize;
+        const offset = Math.floor(size / 2);
+        
+        if (currentTool === 'rect') {
+          const x1 = Math.min(shapeStart.x, x);
+          const y1 = Math.min(shapeStart.y, y);
+          const w = Math.abs(shapeStart.x - x) + 1;
+          const h = Math.abs(shapeStart.y - y) + 1;
+          
+          for (let i = 0; i < w; i++) {
+            for (let s = 0; s < size; s++) {
+              ctx.fillRect(x1 + i, y1 + s, 1, 1);
+              ctx.fillRect(x1 + i, y1 + h - size + s, 1, 1);
+            }
+          }
+          for (let j = 0; j < h; j++) {
+            for (let s = 0; s < size; s++) {
+              ctx.fillRect(x1 + s, y1 + j, 1, 1);
+              ctx.fillRect(x1 + w - size + s, y1 + j, 1, 1);
+            }
+          }
+        } else if (currentTool === 'line') {
+          drawSimpleLine(shapeStart.x, shapeStart.y, x, y);
+        }
+      } else if (currentTool === 'select') {
+        if (!isDragging && selection) {
+          selection.x2 = x;
+          selection.y2 = y;
+          drawSelectionBox();
+        }
+      }
+    }
+
+    function drawSelectionBox() {
+      if (!selection) return;
+      ctx.putImageData(snapshot, 0, 0);
+      const x1 = Math.min(selection.x1, selection.x2);
+      const y1 = Math.min(selection.y1, selection.y2);
+      const w = Math.abs(selection.x2 - selection.x1) + 1;
+      const h = Math.abs(selection.y2 - selection.y1) + 1;
+      ctx.strokeStyle = '#0075ff';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 2]);
+      ctx.strokeRect(x1 + 0.5, y1 + 0.5, w - 1, h - 1);
+      ctx.setLineDash([]);
+    }
+
+    function moveSelection(dx, dy) {
+      if (!selection || !snapshot) return;
+      const x1 = selection.x1;
+      const y1 = selection.y1;
+      const x2 = selection.x2;
+      const y2 = selection.y2;
+      const w = x2 - x1 + 1;
+      const h = y2 - y1 + 1;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.putImageData(snapshot, 0, 0);
+
+      const selectedData = ctx.getImageData(x1, y1, w, h);
+      ctx.clearRect(x1, y1, w, h);
+
+      let newX = x1 + dx;
+      let newY = y1 + dy;
+      if (newX < 0) newX = 0;
+      if (newY < 0) newY = 0;
+      if (newX + w > canvas.width) newX = canvas.width - w;
+      if (newY + h > canvas.height) newY = canvas.height - h;
+
+      ctx.putImageData(selectedData, newX, newY);
+
+      selection.x1 = newX;
+      selection.y1 = newY;
+      selection.x2 = newX + w - 1;
+      selection.y2 = newY + h - 1;
+
+      snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      drawSelectionBox();
+      updatePreview();
+    }
+
+    function stopDraw() {
+      if (currentTool === 'select' && isDrawing) {
+        if (selection) {
+          const x1 = Math.min(selection.x1, selection.x2);
+          const y1 = Math.min(selection.y1, selection.y2);
+          const x2 = Math.max(selection.x1, selection.x2);
+          const y2 = Math.max(selection.y1, selection.y2);
+          if (x2 > x1 && y2 > y1) {
+            selection = { x1, y1, x2, y2 };
+            isDragging = true;
+            dragStartX = selection.x1;
+            dragStartY = selection.y1;
+            snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          } else {
+            selection = null;
+            isDragging = false;
+          }
+        }
+      }
+      isDrawing = false;
+      shapeStart = null;
+      snapshot = null;
+      updatePreview();
+    }
+
+    function clearSelection() {
+      if (selection) {
+        pushHistory();
+        selection = null;
+        isDragging = false;
+        updatePreview();
+      }
     }
 
     function draw(e) {
@@ -2558,6 +2710,7 @@
       if (e.key === 'l') setTool('line');
       if (e.key === 'm') setTool('mask');
       if (e.key === 'i' || e.key === 'x') setTool('picker');
+      if (e.key === 's') setTool('select');
     });
 
     init();
