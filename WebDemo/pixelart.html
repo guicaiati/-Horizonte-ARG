@@ -1431,42 +1431,49 @@
     };
 
     function updateCursorPreview(e) {
-      if (currentTool === 'picker') {
-        cursorPreview.style.display = 'none';
-        return;
-      }
-
       const zoom = parseInt(document.getElementById('zoomRange').value);
       const size = brushSize * zoom;
-      const halfSize = Math.floor(brushSize / 2) * zoom;
 
       const gridX = Math.floor(e.offsetX / zoom) * zoom;
       const gridY = Math.floor(e.offsetY / zoom) * zoom;
 
-      cursorPreview.style.display = 'block';
       cursorPreview.style.width = size + 'px';
       cursorPreview.style.height = size + 'px';
       cursorPreview.style.left = gridX + 'px';
       cursorPreview.style.top = gridY + 'px';
       
-      if (currentTool === 'eraser') {
+      if (currentTool === 'picker') {
+        cursorPreview.style.display = 'block';
+        cursorPreview.style.background = 'transparent';
+        cursorPreview.style.border = '2px solid #fff';
+        cursorPreview.style.boxShadow = '0 0 0 2px #000';
+      } else if (currentTool === 'fill') {
+        cursorPreview.style.display = 'block';
+        cursorPreview.style.background = currentColor;
+        cursorPreview.style.border = '2px solid #fff';
+        cursorPreview.style.boxShadow = '0 0 0 2px #000';
+      } else if (currentTool === 'eraser') {
+        cursorPreview.style.display = 'block';
         cursorPreview.style.background = 'rgba(200, 200, 200, 0.5)';
         cursorPreview.style.border = '1px solid rgba(0,0,0,0.5)';
+        cursorPreview.style.boxShadow = 'none';
       } else if (currentTool === 'mask') {
+        cursorPreview.style.display = 'block';
         cursorPreview.style.background = 'rgba(52, 152, 219, 0.5)';
         cursorPreview.style.border = '1px solid rgba(255,255,255,0.8)';
+        cursorPreview.style.boxShadow = 'none';
       } else {
+        cursorPreview.style.display = 'block';
         cursorPreview.style.background = currentColor;
         cursorPreview.style.border = '1px solid rgba(0,0,0,0.5)';
+        cursorPreview.style.boxShadow = 'none';
       }
     }
 
     pixelCanvas.addEventListener('mousemove', updateCursorPreview);
     pixelCanvas.addEventListener('mouseenter', (e) => {
-      if (currentTool !== 'picker') {
-        cursorPreview.style.display = 'block';
-        updateCursorPreview(e);
-      }
+      cursorPreview.style.display = 'block';
+      updateCursorPreview(e);
     });
     pixelCanvas.addEventListener('mouseleave', () => {
       cursorPreview.style.display = 'none';
