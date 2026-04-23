@@ -1487,48 +1487,7 @@
       }
     }
 
-    pixelCanvas.addEventListener('mousemove', (e) => {
-      updateCursorPreview(e);
-      
-      if (currentTool === 'select' && isDragging && isDrawing && selection && selectionPixels) {
-        const { x, y } = getCanvasCoords(e);
-        const dx = x - lastX;
-        const dy = y - lastY;
-        
-        const oldSnapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        
-        ctx.clearRect(selection.x1, selection.y1, selectionW, selectionH);
-        
-        let newX = selection.x1 + dx;
-        let newY = selection.y1 + dy;
-        
-        if (newX < 0) newX = 0;
-        if (newY < 0) newY = 0;
-        if (newX + selectionW > canvas.width) newX = canvas.width - selectionW;
-        if (newY + selectionH > canvas.height) newY = canvas.height - selectionH;
-        
-        ctx.putImageData(selectionPixels, newX, newY);
-        
-        selection.x1 = newX;
-        selection.y1 = newY;
-        selection.x2 = newX + selectionW - 1;
-        selection.y2 = newY + selectionH - 1;
-        
-        selectionPixels = ctx.getImageData(newX, newY, selectionW, selectionH);
-        
-        ctx.strokeStyle = '#0075ff';
-        ctx.lineWidth = 2;
-        ctx.setLineDash([3, 3]);
-        ctx.strokeRect(newX, newY, selectionW, selectionH);
-        ctx.setLineDash([]);
-        ctx.fillStyle = 'rgba(0, 117, 255, 0.15)';
-        ctx.fillRect(newX, newY, selectionW, selectionH);
-        
-        lastX = x;
-        lastY = y;
-        updatePreview();
-      }
-    });
+    pixelCanvas.addEventListener('mousemove', updateCursorPreview);
     pixelCanvas.addEventListener('mouseenter', (e) => {
       cursorPreview.style.display = 'block';
       updateCursorPreview(e);
@@ -1606,10 +1565,29 @@ function startDraw(e) {
         snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
         shapeStart = { x, y };
       } else if (currentTool === 'select') {
-        pushHistory();
-        selection = { x1: x, y1: y, x2: x, y2: y };
-        isDragging = false;
-        snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let minX = canvas.width, maxX = 0, minY = canvas.height, maxY = 0;
+        for (let py = 0; py < canvas.height; py++) {
+          for (let px = 0; px < canvas.width; px++) {
+            const p = ctx.getImageData(px, py, 1, 1).data;
+            if (p[3] > 0) {
+              if (px < minX) minX = px;
+              if (px > maxX) maxX = px;
+              if (py < minY) minY = py;
+              if (py > maxY) maxY = py;
+            }
+          }
+        }
+        if (maxX >= minX && maxY >= minY) {
+          pushHistory();
+          selection = { x1: minX, y1: minY, x2: maxX, y2: maxY };
+          selectionW = maxX - minX + 1;
+          selectionH = maxY - minY + 1;
+          selectionPixels = ctx.getImageData(minX, minY, selectionW, selectionH);
+          isDragging = true;
+          snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        } else {
+          isDrawing = false;
+        }
       } else {
         pushHistory();
         drawPixel(x, y);
@@ -1619,7 +1597,6 @@ function startDraw(e) {
     function draw(e) {
       if (!isDrawing) return;
       const { x, y } = getCanvasCoords(e);
-      lastX = x; lastY = y;
 
       if (currentTool === 'pencil' || currentTool === 'eraser' || currentTool === 'mask') {
         drawPixel(x, y);
@@ -1648,52 +1625,33 @@ function startDraw(e) {
         } else if (currentTool === 'line') {
           drawSimpleLine(shapeStart.x, shapeStart.y, x, y);
         }
-      } else if (currentTool === 'select') {
-        selection.x2 = x;
-        selection.y2 = y;
+      } else if (currentTool === 'select' && isDragging) {
+        const dx = x - lastX;
+        const dy = y - lastY;
+        
         ctx.putImageData(snapshot, 0, 0);
+        ctx.clearRect(selection.x1, selection.y1, selectionW, selectionH);
         
-        const x1 = Math.min(selection.x1, selection.x2);
-        const y1 = Math.min(selection.y1, selection.y2);
-        const w = Math.abs(selection.x2 - selection.x1) + 1;
-        const h = Math.abs(selection.y2 - selection.y1) + 1;
+        let newX = selection.x1 + dx;
+        let newY = selection.y1 + dy;
+        newX = Math.max(0, Math.min(canvas.width - selectionW, newX));
+        newY = Math.max(0, Math.min(canvas.height - selectionH, newY));
         
-        ctx.strokeStyle = '#0075ff';
-        ctx.lineWidth = 2;
-        ctx.setLineDash([3, 3]);
-        ctx.strokeRect(x1, y1, w, h);
-        ctx.setLineDash([]);
-        ctx.fillStyle = 'rgba(0, 117, 255, 0.15)';
-        ctx.fillRect(x1, y1, w, h);
+        ctx.putImageData(selectionPixels, newX, newY);
+        selection.x1 = newX;
+        selection.y1 = newY;
+        selection.x2 = newX + selectionW - 1;
+        selection.y2 = newY + selectionH - 1;
+        
+        lastX = x;
+        lastY = y;
       }
     }
 
     function stopDraw() {
-      if (currentTool === 'select' && isDrawing && selection) {
-        const x1 = Math.min(selection.x1, selection.x2);
-        const y1 = Math.min(selection.y1, selection.y2);
-        const x2 = Math.max(selection.x1, selection.x2);
-        const y2 = Math.max(selection.y1, selection.y2);
-        
-        if (x2 > x1 && y2 > y1) {
-          selectionW = x2 - x1 + 1;
-          selectionH = y2 - y1 + 1;
-          selectionPixels = ctx.getImageData(x1, y1, selectionW, selectionH);
-          selection = { x1, y1, x2, y2 };
-          isDragging = true;
-          
-          ctx.putImageData(snapshot, 0, 0);
-          ctx.strokeStyle = '#0075ff';
-          ctx.lineWidth = 2;
-          ctx.setLineDash([3, 3]);
-          ctx.strokeRect(x1, y1, selectionW, selectionH);
-          ctx.setLineDash([]);
-          ctx.fillStyle = 'rgba(0, 117, 255, 0.15)';
-          ctx.fillRect(x1, y1, selectionW, selectionH);
-        } else {
-          selection = null;
-          isDragging = false;
-        }
+      if (currentTool === 'select' && isDragging) {
+        selectionPixels = ctx.getImageData(selection.x1, selection.y1, selectionW, selectionH);
+        snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
       }
       isDrawing = false;
       shapeStart = null;
@@ -1702,6 +1660,7 @@ function startDraw(e) {
 
     function clearSelection() {
       if (selection) {
+        ctx.putImageData(snapshot, 0, 0);
         selection = null;
         isDragging = false;
         selectionPixels = null;
