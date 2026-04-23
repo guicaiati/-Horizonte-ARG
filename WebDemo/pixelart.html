@@ -1554,7 +1554,8 @@ function startDraw(e) {
       const { x, y } = getCanvasCoords(e);
       if (e.ctrlKey || currentTool === 'picker') { pickColor(x, y); return; }
       isDrawing = true;
-      lastX = x; lastY = y;
+      lastX = e.clientX;
+      lastY = e.clientY;
       
       if (currentTool === 'fill') {
         pushHistory();
@@ -1567,7 +1568,6 @@ function startDraw(e) {
       } else if (currentTool === 'select') {
         pushHistory();
         isDragging = true;
-        selection = { x1: 0, y1: 0, x2: canvas.width - 1, y2: canvas.height - 1 };
       } else {
         pushHistory();
         drawPixel(x, y);
@@ -1580,7 +1580,6 @@ function startDraw(e) {
 
       if (currentTool === 'pencil' || currentTool === 'eraser' || currentTool === 'mask') {
         drawPixel(x, y);
-        lastX = x; lastY = y;
       } else if (currentTool === 'rect' || currentTool === 'line') {
         ctx.putImageData(snapshot, 0, 0);
         ctx.fillStyle = currentColor;
@@ -1607,23 +1606,23 @@ function startDraw(e) {
           drawSimpleLine(shapeStart.x, shapeStart.y, x, y);
         }
       } else if (currentTool === 'select' && isDragging) {
-        const dx = x - lastX;
-        const dy = y - lastY;
+        const dx = e.clientX - lastX;
+        const dy = e.clientY - lastY;
+        
+        if (dx !== 0) {
+          const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.putImageData(img, dx, dy);
+          lastX = e.clientX;
+        }
+        if (dy !== 0) {
+          const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.putImageData(img, 0, dy);
+          lastY = e.clientY;
+        }
         
         if (dx !== 0 || dy !== 0) {
-          const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.putImageData(imgData, dx, dy);
-          
-          if (selection) {
-            selection.x1 += dx;
-            selection.x2 += dx;
-            selection.y1 += dy;
-            selection.y2 += dy;
-          }
-          
-          lastX = x;
-          lastY = y;
           updatePreview();
         }
       }
@@ -1631,6 +1630,7 @@ function startDraw(e) {
 
     function stopDraw() {
       isDrawing = false;
+      isDragging = false;
       shapeStart = null;
       updatePreview();
     }
