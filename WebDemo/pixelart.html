@@ -1816,6 +1816,8 @@ function applyMapping(mapping) {
 }
 
 document.getElementById("autoDetectBtn")?.addEventListener("click", () => {
+  overlayCanvas.style.opacity = '1';
+  maskVisible = true;
   const mapping = autoDetect()
   previewDetection(mapping)
   if (confirm("¿Aplicar detección automática?")) {
