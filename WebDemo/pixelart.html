@@ -1565,29 +1565,9 @@ function startDraw(e) {
         snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
         shapeStart = { x, y };
       } else if (currentTool === 'select') {
-        let minX = canvas.width, maxX = 0, minY = canvas.height, maxY = 0;
-        for (let py = 0; py < canvas.height; py++) {
-          for (let px = 0; px < canvas.width; px++) {
-            const p = ctx.getImageData(px, py, 1, 1).data;
-            if (p[3] > 0) {
-              if (px < minX) minX = px;
-              if (px > maxX) maxX = px;
-              if (py < minY) minY = py;
-              if (py > maxY) maxY = py;
-            }
-          }
-        }
-        if (maxX >= minX && maxY >= minY) {
-          pushHistory();
-          selection = { x1: minX, y1: minY, x2: maxX, y2: maxY };
-          selectionW = maxX - minX + 1;
-          selectionH = maxY - minY + 1;
-          selectionPixels = ctx.getImageData(minX, minY, selectionW, selectionH);
-          isDragging = true;
-          snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        } else {
-          isDrawing = false;
-        }
+        pushHistory();
+        isDragging = true;
+        selection = { x1: 0, y1: 0, x2: canvas.width - 1, y2: canvas.height - 1 };
       } else {
         pushHistory();
         drawPixel(x, y);
@@ -1600,6 +1580,7 @@ function startDraw(e) {
 
       if (currentTool === 'pencil' || currentTool === 'eraser' || currentTool === 'mask') {
         drawPixel(x, y);
+        lastX = x; lastY = y;
       } else if (currentTool === 'rect' || currentTool === 'line') {
         ctx.putImageData(snapshot, 0, 0);
         ctx.fillStyle = currentColor;
@@ -1629,30 +1610,26 @@ function startDraw(e) {
         const dx = x - lastX;
         const dy = y - lastY;
         
-        ctx.putImageData(snapshot, 0, 0);
-        ctx.clearRect(selection.x1, selection.y1, selectionW, selectionH);
-        
-        let newX = selection.x1 + dx;
-        let newY = selection.y1 + dy;
-        newX = Math.max(0, Math.min(canvas.width - selectionW, newX));
-        newY = Math.max(0, Math.min(canvas.height - selectionH, newY));
-        
-        ctx.putImageData(selectionPixels, newX, newY);
-        selection.x1 = newX;
-        selection.y1 = newY;
-        selection.x2 = newX + selectionW - 1;
-        selection.y2 = newY + selectionH - 1;
-        
-        lastX = x;
-        lastY = y;
+        if (dx !== 0 || dy !== 0) {
+          const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.putImageData(imgData, dx, dy);
+          
+          if (selection) {
+            selection.x1 += dx;
+            selection.x2 += dx;
+            selection.y1 += dy;
+            selection.y2 += dy;
+          }
+          
+          lastX = x;
+          lastY = y;
+          updatePreview();
+        }
       }
     }
 
     function stopDraw() {
-      if (currentTool === 'select' && isDragging) {
-        selectionPixels = ctx.getImageData(selection.x1, selection.y1, selectionW, selectionH);
-        snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      }
       isDrawing = false;
       shapeStart = null;
       updatePreview();
